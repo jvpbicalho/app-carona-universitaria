@@ -1,0 +1,17 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
+  "exclude": [
+    "node_modules",
+    // Edge Functions rodam em Deno, não em React Native: têm globals (Deno.*) e
+    // imports (jsr:) que este tsconfig não conhece. Quem as checa é o Deno,
+    // via `supabase functions serve` ou `deno check`.
+    "supabase/functions"
+  ]
+}

@@ -1,0 +1,41 @@
+# --- Instruções internas do Claude Code (não versionar) ---
+CLAUDE.md
+.claude/
+
+# --- Node ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.tsbuildinfo
+
+# --- Expo / React Native ---
+.expo/
+.expo-shared/
+dist/
+web-build/
+android/
+ios/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# --- Variáveis de ambiente (contêm chaves) ---
+.env
+.env.local
+.env.*.local
+
+# --- Supabase CLI ---
+supabase/.branches/
+supabase/.temp/
+.supabase/
+
+# --- Editores / SO ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,44 @@
+# Configuração do Supabase CLI.
+#
+# Serve a dois propósitos:
+#  - permitir `supabase link` / `db push` / `functions deploy` nesta pasta;
+#  - versionar as configurações de Auth que hoje só existem no dashboard, para
+#    que ninguém precise adivinhar como o projeto foi configurado.
+#
+# Aplicar as configurações abaixo no projeto remoto:  supabase config push
+
+project_id = "app-carona-universitaria"
+
+[auth]
+enabled = true
+# URL base usada nos links de e-mail.
+site_url = "caronauni://"
+# Destinos permitidos para o redirect do link de confirmação.
+additional_redirect_urls = ["caronauni://*", "exp://*"]
+# Sessão: refresh token rotativo, com janela de reuso curta.
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+
+# Alinhado a MIN_PASSWORD_LENGTH em src/auth/institutionalEmail.ts.
+# Se mudar aqui, mude lá — a validação do client e a do servidor têm que
+# recusar as mesmas senhas.
+minimum_password_length = 8
+
+[auth.email]
+enable_signup = true
+# EP01 — sem isto o signUp já devolve sessão e o critério do link de
+# confirmação da História 1 não se cumpre.
+enable_confirmations = true
+double_confirm_changes = true
+# Intervalo mínimo entre reenvios do link de confirmação, por e-mail.
+max_frequency = "60s"
+
+[auth.email.template.confirmation]
+subject = "Confirme seu e-mail — Carona Universitária"
+
+[functions.auth-login]
+# É o endpoint de login: o JWT ainda não existe quando ele é chamado.
+# A própria função autentica (delega ao GoTrue) e o bloqueio por e-mail é o
+# que a protege de força bruta. Ver docs/autenticacao.md.
+verify_jwt = false
