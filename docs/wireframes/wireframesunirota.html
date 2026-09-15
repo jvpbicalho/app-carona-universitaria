@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wireframes — Carona Universitária</title>
+<style>
+:root{
+  --ink:#2b2b2b; --ink2:#6b6b6b; --ink3:#9a9a9a;
+  --line:#c9c9c9; --line2:#e2e2e2; --fill:#ededed; --page:#f6f6f6; --white:#fff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:48px 24px 80px}
+
+header.top{border-bottom:1px solid var(--line);padding-bottom:24px}
+header.top h1{font-size:26px;font-weight:600;margin:0 0 6px}
+header.top p{margin:0;color:var(--ink2);font-size:14px;max-width:64ch}
+header.top .meta{margin-top:14px;font-size:13px;color:var(--ink3)}
+header.top .legend{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+
+section.epic{margin-top:56px}
+section.epic > h2{font-size:18px;font-weight:600;margin:0 0 4px}
+section.epic > .sub{margin:0 0 24px;color:var(--ink2);font-size:14px;max-width:72ch}
+
+.grid{display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start}
+figure.screen{margin:0;width:280px}
+figure.wide{width:560px}
+figcaption{margin-top:12px}
+figcaption .name{font-size:14px;font-weight:600;display:block}
+figcaption .story{font-size:12.5px;color:var(--ink2);display:block;margin-top:2px}
+figcaption ul{margin:8px 0 0;padding-left:16px}
+figcaption li{font-size:12.5px;color:var(--ink2);margin-bottom:2px}
+
+.phone{width:280px;background:var(--white);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.status{height:22px;border-bottom:1px solid var(--line2);
+  display:flex;align-items:center;justify-content:space-between;padding:0 12px;font-size:9.5px;color:var(--ink3)}
+.bar{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line2);font-size:13.5px;font-weight:600}
+.bar .back{color:var(--ink3);font-weight:400}
+.bar .right{margin-left:auto;font-weight:400;color:var(--ink3);font-size:11px}
+.body{padding:14px}
+.body.tight{padding:12px 14px}
+
+.label{font-size:10.5px;color:var(--ink3);margin:0 0 5px}
+.field{height:34px;border:1px solid var(--line);border-radius:6px;background:var(--white);
+  display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-size:11.5px;color:var(--ink3);margin-bottom:12px}
+.field.locked{background:var(--fill)}
+.field.tall{height:60px;align-items:flex-start;padding-top:8px}
+.hint{font-size:10.5px;color:var(--ink3);margin:-8px 0 12px}
+.hint.err{color:#8a3a3a}
+.hint.free{margin:0 0 12px}
+
+.btn{height:38px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12.5px}
+.btn.primary{background:var(--ink);color:#fff}
+.btn.ghost{border:1px solid var(--line);color:var(--ink2);background:var(--white)}
+.btn.disabled{background:var(--fill);color:var(--ink3)}
+.btn + .btn{margin-top:8px}
+
+.line{height:10px;background:var(--fill);border-radius:3px}
+.line.sm{height:8px}
+.box{background:var(--fill);border-radius:6px}
+.avatar{width:52px;height:52px;border-radius:50%;background:var(--fill);border:1px dashed var(--line);
+  display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--ink3);flex:none}
+
+.seg{display:flex;background:var(--fill);border-radius:6px;padding:3px;margin-bottom:14px}
+.seg div{flex:1;text-align:center;font-size:11.5px;padding:5px;color:var(--ink3)}
+.seg div.on{background:var(--white);border:1px solid var(--line);border-radius:5px;color:var(--ink)}
+
+.card{border:1px solid var(--line2);border-radius:8px;padding:10px;margin-bottom:10px}
+.card.muted{background:var(--fill);border:0}
+.card .row{display:flex;align-items:center;gap:9px}
+.card .row .av{width:30px;height:30px;border-radius:50%;background:var(--fill);flex:none}
+.card .col{flex:1;min-width:0}
+.tag{display:inline-block;font-size:10px;color:var(--ink2);border:1px solid var(--line);
+  border-radius:10px;padding:1px 7px;background:var(--white)}
+.tag.solid{background:var(--fill);border-color:var(--fill)}
+.tag.f2{border-style:dashed}
+
+.row-item{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:11px 0;border-bottom:1px solid var(--line2);font-size:12px}
+.row-item:last-child{border-bottom:0}
+.row-item .chev{color:var(--ink3)}
+
+.tabbar{display:flex;border-top:1px solid var(--line2)}
+.tabbar div{flex:1;text-align:center;padding:9px 0;font-size:9.5px;color:var(--ink3);position:relative}
+.tabbar div.on{color:var(--ink);font-weight:600}
+.badge{position:absolute;top:4px;right:26%;min-width:14px;height:14px;border-radius:7px;
+  background:var(--ink);color:#fff;font-size:8.5px;line-height:14px;text-align:center;padding:0 3px}
+
+.map{height:112px;background:var(--fill);border-radius:6px;border:1px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;font-size:10.5px;color:var(--ink3);margin-bottom:12px}
+.codes{display:flex;gap:8px;margin-bottom:12px}
+.codes div{flex:1;height:42px;border:1px solid var(--line);border-radius:6px}
+.stars{display:flex;gap:7px;justify-content:center;margin:6px 0 14px;font-size:22px;color:var(--line)}
+.score{width:36px;height:36px;border-radius:50%;border:2px solid var(--line);display:flex;
+  align-items:center;justify-content:center;font-size:11px;font-weight:600;flex:none}
+
+.overlay{background:rgba(0,0,0,.35);padding:36px 16px;display:flex;align-items:center;justify-content:center}
+.sheet{background:rgba(0,0,0,.35);padding:48px 0 0;display:flex;align-items:flex-end}
+.sheet > div{background:var(--white);border-radius:12px 12px 0 0;padding:14px;width:100%}
+.modal{background:var(--white);border-radius:10px;padding:14px;width:100%}
+.modal h4{margin:0 0 6px;font-size:13px;font-weight:600}
+.modal p{margin:0 0 14px;font-size:11.5px;color:var(--ink2)}
+
+.empty{text-align:center;padding:26px 10px}
+.empty .ic{width:42px;height:42px;border-radius:50%;background:var(--fill);margin:0 auto 10px}
+.empty p{font-size:11.5px;color:var(--ink3);margin:0 0 14px}
+
+.msg{max-width:78%;padding:8px 10px;border-radius:10px;font-size:11px;color:var(--ink2);margin-bottom:8px}
+.msg.them{background:var(--fill)}
+.msg.me{background:var(--white);border:1px solid var(--line);margin-left:auto}
+
+.desk{width:560px;border:1px solid var(--line);border-radius:10px;background:var(--white);overflow:hidden}
+.desk .chrome{height:26px;border-bottom:1px solid var(--line2);display:flex;align-items:center;gap:5px;padding:0 10px}
+.desk .chrome span{width:8px;height:8px;border-radius:50%;background:var(--fill)}
+.desk .layout{display:flex;min-height:300px}
+.desk .side{width:132px;border-right:1px solid var(--line2);padding:12px 10px}
+.desk .side .nav{font-size:11px;color:var(--ink3);padding:7px 8px;border-radius:5px}
+.desk .side .nav.on{background:var(--fill);color:var(--ink)}
+.desk .main{flex:1;padding:14px}
+.desk h5{margin:0 0 12px;font-size:13px;font-weight:600}
+table.tbl{width:100%;border-collapse:collapse;font-size:11px}
+table.tbl th{text-align:left;font-weight:600;color:var(--ink3);font-size:10px;padding:6px 8px;border-bottom:1px solid var(--line2)}
+table.tbl td{padding:9px 8px;border-bottom:1px solid var(--line2);color:var(--ink2)}
+.bars{display:flex;align-items:flex-end;gap:8px;height:88px;padding-top:8px}
+.bars div{flex:1;background:var(--fill);border-radius:3px 3px 0 0}
+.kpi{display:flex;gap:10px;margin-bottom:14px}
+.kpi div{flex:1;background:var(--fill);border-radius:6px;padding:9px}
+.kpi .n{height:13px;width:50%;background:var(--line2);border-radius:3px;margin-bottom:6px}
+.kpi .l{height:7px;width:76%;background:var(--line2);border-radius:3px}
+
+footer.end{margin-top:64px;padding-top:24px;border-top:1px solid var(--line);font-size:13px;color:var(--ink2)}
+footer.end h3{font-size:15px;font-weight:600;color:var(--ink);margin:0 0 8px}
+footer.end h3:not(:first-child){margin-top:24px}
+footer.end ul{margin:0;padding-left:18px}
+footer.end li{margin-bottom:5px}
+
+@media print{body{background:#fff} figure.screen{break-inside:avoid} section.epic{break-inside:avoid-page}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>Wireframes — Carona Universitária</h1>
+  <p>Wireframes de baixa fidelidade de todas as telas do produto, organizados pelos 10 épicos do backlog. Sem cor, tipografia ou ícones definitivos: aqui o objetivo é fechar fluxo, hierarquia e estados antes da alta fidelidade.</p>
+  <div class="meta">Versão 2 · lo-fi · autor: Carlos (UX) · 41 telas · cobre EP01 a EP10</div>
+  <div class="legend">
+    <span class="tag solid">MVP</span>
+    <span class="tag f2">tracejado = Fase 2</span>
+  </div>
+</header>
+
+<section class="epic">
+  <h2>EP01 — Cadastro e autenticação universitária</h2>
+  <p class="sub">O e-mail institucional é a porta de entrada: é ele que garante que só gente da universidade entra. A verificação não é opcional e acontece antes de qualquer outra coisa.</p>
+  <div class="grid">
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="body" style="padding:22px 16px">
+          <div class="box" style="height:64px;width:64px;margin:14px auto 18px;border-radius:14px"></div>
+          <div class="line" style="width:70%;margin:0 auto 8px"></div>
+          <div class="line sm" style="width:90%;margin:0 auto 6px"></div>
+          <div class="line sm" style="width:60%;margin:0 auto 26px"></div>
+          <div class="btn primary">Criar conta</div>
+          <div class="btn ghost">Já tenho conta</div>
+          <p class="hint free" style="text-align:center;margin:14px 0 0">só com e-mail institucional</p>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">1.1 Boas-vindas</span>
+        <span class="story">Ponto de entrada do app</span>
+        <ul><li>Deixa a regra do e-mail visível já aqui</li><li>Usuário logado pula direto pra Home</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Criar conta</div>
+        <div class="body">
+          <p class="label">Nome completo</p>
+          <div class="field">como aparece na matrícula</div>
+          <p class="label">E-mail institucional</p>
+          <div class="field">nome@universidade.edu.br</div>
+          <p class="hint err">só domínios da universidade são aceitos</p>
+          <p class="label">Senha</p>
+          <div class="field">mínimo 8 caracteres <span>◍</span></div>
+          <p class="label">Confirmar senha</p>
+          <div class="field"></div>
+          <div class="row-item" style="border:0;padding:2px 0 14px">
+            <span style="display:flex;gap:8px;align-items:center"><span style="width:15px;height:15px;border:1px solid var(--line);border-radius:3px"></span> Li e aceito os termos</span>
+          </div>
+          <div class="btn disabled">Criar conta</div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">1.2 Criar conta</span>
+        <span class="story">Dado um e-mail no domínio da instituição</span>
+        <ul><li>Botão só habilita com domínio válido e termos aceitos</li><li>Validação do domínio em tempo real, não no submit</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Verificar e-mail</div>
+        <div class="body">
+          <div class="box" style="height:44px;width:44px;border-radius:50%;margin:8px auto 14px"></div>
+          <div class="line sm" style="width:88%;margin:0 auto 6px"></div>
+          <div class="line sm" style="width:64%;margin:0 auto 20px"></div>
+          <p class="label">Código de 6 dígitos</p>
+          <div class="codes"><div></div><div></div><div></div><div></div><div></div><div></div></div>
+          <div class="btn primary">Confirmar</div>
+          <p class="hint free" style="text-align:center;margin:14px 0 0">reenviar código em 00:47</p>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">1.3 Verificação de e-mail</span>
+        <span class="story">Etapa obrigatória entre cadastro e uso</span>
+        <ul><li>Conta fica pendente até confirmar</li><li>Reenvio com contador pra evitar spam</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Entrar</div>
+        <div class="body">
+          <div class="box" style="height:48px;width:48px;border-radius:12px;margin:12px auto 22px"></div>
+          <p class="label">E-mail institucional</p>
+          <div class="field">nome@universidade.edu.br</div>
+          <p class="label">Senha</p>
+          <div class="field"><span>••••••••</span><span>◍</span></div>
+          <div class="btn primary">Entrar</div>
+          <p class="hint free" style="text-align:center;margin:14px 0 0">Esqueci minha senha</p>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">1.4 Login</span>
+        <span class="story">Login válido redireciona para a home</span>
+        <ul><li>Erro genérico: "e-mail ou senha incorretos"</li><li>Conta não verificada cai na tela 1.3</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Recuperar senha <span class="right">Fase 2</span></div>
+        <div class="body">
+          <div class="line sm" style="width:90%;margin:14px 0 6px"></div>
+          <div class="line sm" style="width:55%;margin:0 0 20px"></div>
+          <p class="label">E-mail institucional</p>
+          <div class="field">nome@universidade.edu.br</div>
+          <div class="btn primary">Enviar link</div>
+          <div class="card muted" style="margin-top:18px">
+            <div class="line sm" style="width:80%;margin-bottom:6px"></div>
+            <div class="line sm" style="width:50%"></div>
+          </div>
+          <p class="hint free" style="margin-top:10px">sucesso com mensagem neutra: não confirma se o e-mail existe</p>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">1.5 Recuperar senha</span>
+        <span class="story">E-mail de redefinição enviado · Fase 2</span>
+        <ul><li>Desenhada agora pra não travar o fluxo depois</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Comprovar vínculo <span class="right">Fase 2</span></div>
+        <div class="body">
+          <div class="line sm" style="width:92%;margin:10px 0 6px"></div>
+          <div class="line sm" style="width:70%;margin:0 0 18px"></div>
+          <div class="field" style="height:76px;align-items:center;justify-content:center;border-style:dashed">
+            <span>enviar imagem ou PDF</span>
+          </div>
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="flex:1"><div class="line sm" style="width:70%;margin-bottom:5px"></div><div class="line sm" style="width:40%"></div></div>
+              <span class="tag">em análise</span>
+            </div>
+          </div>
+          <p class="hint free">status: enviado · em análise · aprovado · recusado</p>
+          <div class="btn primary">Enviar documento</div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">1.6 Envio de documento</span>
+        <span class="story">Upload de imagem/PDF com status · Fase 2</span>
+        <ul><li>Alimenta o painel de moderação (10.1)</li><li>Recusa precisa mostrar o motivo</li></ul>
+      </figcaption>
+    </figure>
+
+  </div>
+</section>
+
+<section class="epic">
+  <h2>EP02 — Perfil do usuário</h2>
+  <p class="sub">Um mesmo usuário pode ser passageiro e motorista. O perfil é único; o que muda é o modo ativo. Quem nunca cadastrou veículo não vê campos de motorista.</p>
+  <div class="grid">
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Completar perfil</div>
+        <div class="body">
+          <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px">
+            <div class="avatar">foto</div>
+            <div style="flex:1">
+              <div class="line" style="width:70%;margin-bottom:7px"></div>
+              <div class="line sm" style="width:90%"></div>
+            </div>
+          </div>
+          <p class="label">Telefone / WhatsApp</p>
+          <div class="field">(11) 90000-0000</div>
+          <p class="label">Curso</p>
+          <div class="field"><span>selecione</span><span>⌄</span></div>
+          <p class="label">Campus</p>
+          <div class="field"><span>selecione</span><span>⌄</span></div>
+          <p class="label">Sobre mim (opcional)</p>
+          <div class="field tall"></div>
+          <div class="btn primary">Salvar e continuar</div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">2.1 Completar perfil</span>
+        <span class="story">Campos obrigatórios: nome, foto, curso, campus</span>
+        <ul><li>Aparece uma vez, logo após a verificação</li><li>Telefone é o canal de contato antes do chat existir</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar">Meu perfil</div>
+        <div class="body">
+          <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px">
+            <div class="avatar">foto</div>
+            <div style="flex:1">
+              <div class="line" style="width:65%;margin-bottom:7px"></div>
+              <span class="tag">✓ e-mail verificado</span>
+            </div>
+          </div>
+          <div class="seg"><div class="on">Passageiro</div><div>Motorista</div></div>
+          <div class="row-item"><span>Dados pessoais</span><span class="chev">›</span></div>
+          <div class="row-item"><span>Meu veículo</span><span class="chev">›</span></div>
+          <div class="row-item"><span>Avaliações recebidas</span><span class="chev">★ 4,8 ›</span></div>
+          <div class="row-item"><span>Histórico de viagens</span><span class="chev">›</span></div>
+          <div class="row-item"><span>Notificações</span><span class="chev">›</span></div>
+          <div class="row-item"><span>Sair</span><span class="chev">›</span></div>
+        </div>
+        <div class="tabbar"><div>Buscar</div><div>Caronas</div><div>Avisos</div><div class="on">Perfil</div></div>
+      </div>
+      <figcaption>
+        <span class="name">2.2 Perfil</span>
+        <span class="story">Alternância não exige novo cadastro</span>
+        <ul><li>Trocar de modo troca a Home e a aba Caronas</li><li>"Meu veículo" no modo passageiro abre o cadastro vazio</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Meu veículo</div>
+        <div class="body">
+          <p class="label">Marca e modelo</p>
+          <div class="field">ex: Honda Fit</div>
+          <p class="label">Cor</p>
+          <div class="field"><span>selecione</span><span>⌄</span></div>
+          <p class="label">Placa</p>
+          <div class="field">ABC-1D23</div>
+          <p class="label">Vagas disponíveis</p>
+          <div class="field"><span>3</span><span>− +</span></div>
+          <p class="hint">define o limite máximo de passageiros por carona</p>
+          <p class="label">Consumo médio (km/l) <span class="tag f2">Fase 2</span></p>
+          <div class="field">12,5</div>
+          <p class="label">CNH (foto)</p>
+          <div class="field" style="height:52px"><span>enviar arquivo</span><span>↑</span></div>
+          <div class="btn primary">Salvar veículo</div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">2.3 Cadastro de veículo</span>
+        <span class="story">Nº de vagas define o limite máximo</span>
+        <ul><li>O consumo aqui alimenta o cálculo de custo (EP08)</li><li>Sem veículo salvo, o modo motorista fica indisponível</li></ul>
+      </figcaption>
+    </figure>
+
+  </div>
+</section>
+
+<section class="epic">
+  <h2>EP03 — Cadastro de rotas e horários</h2>
+  <p class="sub">Lado do motorista: publicar, acompanhar e cancelar caronas. O cancelamento é o ponto sensível porque atinge passageiros já confirmados.</p>
+  <div class="grid">
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Nova carona</div>
+        <div class="body">
+          <p class="label">Origem</p>
+          <div class="field"><span>buscar endereço</span><span>⌖</span></div>
+          <p class="label">Destino</p>
+          <div class="field"><span>campus</span><span>⌄</span></div>
+          <p class="label">Data</p>
+          <div class="field"><span>12/09/2026</span><span>▤</span></div>
+          <p class="label">Horário de saída</p>
+          <div class="field"><span>07:30</span><span>◷</span></div>
+          <p class="label">Vagas nesta carona</p>
+          <div class="field"><span>3 de 4</span><span>− +</span></div>
+          <p class="label">Observações (opcional)</p>
+          <div class="field tall">ex: não levo animais</div>
+          <div class="btn primary">Publicar carona</div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">3.1 Cadastrar rota</span>
+        <span class="story">Origem e destino via busca de endereço</span>
+        <ul><li>Vagas limitadas pelo veículo cadastrado</li><li>Destino sugerido: campus do perfil</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Rota avançada <span class="right">Fase 2</span></div>
+        <div class="body">
+          <p class="label">Pontos intermediários</p>
+          <div class="card">
+            <div class="row-item" style="padding:6px 0"><span>1 · Metrô Vila Mariana</span><span class="chev">+8 min</span></div>
+            <div class="row-item" style="padding:6px 0"><span>2 · Av. Paulista, 900</span><span class="chev">+5 min</span></div>
+          </div>
+          <div class="btn ghost" style="height:32px">+ Adicionar ponto</div>
+          <p class="hint free" style="margin-top:10px">cada ponto tem tempo estimado próprio</p>
+          <p class="label" style="margin-top:6px">Repetir esta carona</p>
+          <div class="seg" style="margin-bottom:8px"><div>Não</div><div class="on">Toda semana</div></div>
+          <div style="display:flex;gap:5px;margin-bottom:12px">
+            <span class="tag solid">seg</span><span class="tag solid">qua</span><span class="tag">sex</span>
+          </div>
+          <p class="hint free">o sistema gera as instâncias futuras automaticamente</p>
+          <div class="btn primary">Salvar</div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">3.2 Pontos e recorrência</span>
+        <span class="story">Fase 2 · gera instâncias futuras</span>
+        <ul><li>Cancelar uma instância não cancela a série</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar">Minhas caronas</div>
+        <div class="body tight">
+          <div class="seg"><div class="on">Publicadas</div><div>Histórico</div></div>
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;margin-bottom:7px">
+              <span class="tag">seg · 07:30</span><span class="tag">2/3 vagas</span>
+            </div>
+            <div class="line sm" style="width:85%;margin-bottom:5px"></div>
+            <div class="line sm" style="width:60%"></div>
+          </div>
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;margin-bottom:7px">
+              <span class="tag">ter · 18:00</span><span class="tag solid">lotada</span>
+            </div>
+            <div class="line sm" style="width:78%;margin-bottom:5px"></div>
+            <div class="line sm" style="width:52%"></div>
+          </div>
+          <div class="btn ghost">+ Nova carona</div>
+        </div>
+        <div class="tabbar"><div>Buscar</div><div class="on">Caronas</div><div>Avisos<span class="badge">2</span></div><div>Perfil</div></div>
+      </div>
+      <figcaption>
+        <span class="name">3.3 Minhas caronas (motorista)</span>
+        <span class="story">Gestão das rotas publicadas</span>
+        <ul><li>Rota lotada continua visível aqui, mas some da busca</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Detalhe da carona</div>
+        <div class="body tight">
+          <div class="card muted">
+            <div class="line sm" style="width:70%;margin-bottom:6px"></div>
+            <div class="line sm" style="width:45%"></div>
+          </div>
+          <p class="label" style="margin:12px 0 8px">Passageiros confirmados (2)</p>
+          <div class="row-item"><span style="display:flex;gap:8px;align-items:center"><span style="width:26px;height:26px;border-radius:50%;background:var(--fill)"></span> passageiro 1</span><span class="chev">›</span></div>
+          <div class="row-item"><span style="display:flex;gap:8px;align-items:center"><span style="width:26px;height:26px;border-radius:50%;background:var(--fill)"></span> passageiro 2</span><span class="chev">›</span></div>
+          <div class="btn ghost" style="margin-top:14px">Editar carona</div>
+          <div class="btn ghost">Cancelar carona</div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">3.4 Detalhe (motorista)</span>
+        <span class="story">Lista de confirmados e ações da rota</span>
+        <ul><li>Contato do passageiro só aparece após confirmação</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Detalhe da carona</div>
+        <div class="overlay">
+          <div class="modal">
+            <h4>Cancelar esta carona?</h4>
+            <p>2 passageiros confirmados serão avisados com o motivo. A ação não pode ser desfeita.</p>
+            <p class="label">Motivo</p>
+            <div class="field"><span>selecione</span><span>⌄</span></div>
+            <div class="btn primary">Cancelar carona</div>
+            <div class="btn ghost">Voltar</div>
+          </div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">3.5 Cancelar carona</span>
+        <span class="story">Passageiros com vaga confirmada são notificados</span>
+        <ul><li>Motivo é obrigatório porque entra na notificação (6.1)</li></ul>
+      </figcaption>
+    </figure>
+
+  </div>
+</section>
+
+<section class="epic">
+  <h2>EP04 — Busca e matching de caronas</h2>
+  <p class="sub">O coração do app pro passageiro. O resultado não é uma lista crua: é uma lista ordenada por relevância, e o score de compatibilidade precisa ser explicável na interface, senão vira caixa-preta.</p>
+  <div class="grid">
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar">Buscar carona</div>
+        <div class="body tight">
+          <div class="card" style="border-color:var(--line)">
+            <p class="label">Saindo de</p>
+            <div class="field" style="margin-bottom:9px"><span>meu endereço</span><span>⌖</span></div>
+            <p class="label">Indo para</p>
+            <div class="field" style="margin-bottom:9px"><span>campus</span><span>⌄</span></div>
+            <div style="display:flex;gap:8px">
+              <div class="field" style="flex:1;margin:0"><span>hoje</span><span>▤</span></div>
+              <div class="field" style="flex:1;margin:0"><span>07:00</span><span>◷</span></div>
+            </div>
+          </div>
+          <div class="btn primary">Buscar</div>
+          <p class="label" style="margin:16px 0 8px">Trajetos recentes</p>
+          <div class="row-item"><span>Casa → Campus Marquês</span><span class="chev">›</span></div>
+          <div class="row-item"><span>Campus Marquês → Casa</span><span class="chev">›</span></div>
+        </div>
+        <div class="tabbar"><div class="on">Buscar</div><div>Caronas</div><div>Avisos</div><div>Perfil</div></div>
+      </div>
+      <figcaption>
+        <span class="name">4.1 Home / busca</span>
+        <span class="story">Tela inicial do passageiro</span>
+        <ul><li>Atalhos de trajeto repetido matam a digitação diária</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> 6 caronas <span class="right">filtros ⚟</span></div>
+        <div class="body tight">
+          <p class="hint free">ordenadas por relevância</p>
+          <div class="card">
+            <div class="row">
+              <div class="score">92</div>
+              <div class="col">
+                <div class="line sm" style="width:70%;margin-bottom:5px"></div>
+                <div class="line sm" style="width:48%"></div>
+              </div>
+              <span class="tag">07:30</span>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:9px"><span class="tag">2 vagas</span><span class="tag">★ 4,8</span><span class="tag">+4 min</span></div>
+          </div>
+          <div class="card">
+            <div class="row">
+              <div class="score">78</div>
+              <div class="col">
+                <div class="line sm" style="width:62%;margin-bottom:5px"></div>
+                <div class="line sm" style="width:44%"></div>
+              </div>
+              <span class="tag">07:45</span>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:9px"><span class="tag">1 vaga</span><span class="tag">★ 5,0</span><span class="tag">+11 min</span></div>
+          </div>
+          <div class="card">
+            <div class="row">
+              <div class="score">61</div>
+              <div class="col">
+                <div class="line sm" style="width:55%;margin-bottom:5px"></div>
+                <div class="line sm" style="width:38%"></div>
+              </div>
+              <span class="tag">08:10</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">4.2 Resultados</span>
+        <span class="story">Resultados ordenados por relevância</span>
+        <ul><li>Círculo = score de compatibilidade (Fase 2)</li><li>No MVP o círculo sai e a ordenação é por horário</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Compatibilidade <span class="right">Fase 2</span></div>
+        <div class="body">
+          <div style="display:flex;justify-content:center;margin:8px 0 16px">
+            <div class="score" style="width:72px;height:72px;font-size:20px">92</div>
+          </div>
+          <div class="row-item"><span>Distância do seu ponto</span><span>1,2 km</span></div>
+          <div class="row-item"><span>Diferença de horário</span><span>10 min</span></div>
+          <div class="row-item"><span>Desvio na rota</span><span>+4 min</span></div>
+          <div class="row-item"><span>Avaliação do motorista</span><span>★ 4,8</span></div>
+          <p class="hint free" style="margin-top:12px">score calculado a partir de distância, horário e desvio</p>
+          <div class="btn ghost">Ver carona</div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">4.3 Como o score é calculado</span>
+        <span class="story">Fase 2 · abre ao tocar no círculo</span>
+        <ul><li>Sem isso o score vira número mágico e gera desconfiança</li><li>Pesos vêm dos parâmetros do admin (10.4)</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Resultados <span class="right">Fase 2</span></div>
+        <div class="sheet">
+          <div>
+            <div style="width:34px;height:4px;background:var(--line);border-radius:2px;margin:0 auto 14px"></div>
+            <h4 style="margin:0 0 12px;font-size:13px;font-weight:600">Filtros</h4>
+            <p class="label">Janela de horário</p>
+            <div class="field"><span>06:30 — 08:00</span><span>⌄</span></div>
+            <p class="label">Vagas mínimas</p>
+            <div class="field"><span>1</span><span>− +</span></div>
+            <p class="label">Avaliação mínima</p>
+            <div class="field"><span>★ 4,0</span><span>⌄</span></div>
+            <p class="label">Distância máxima do embarque</p>
+            <div class="field"><span>2 km</span><span>⌄</span></div>
+            <div class="btn primary">Aplicar filtros</div>
+            <div class="btn ghost">Limpar</div>
+          </div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">4.4 Filtros</span>
+        <span class="story">Filtros combináveis · Fase 2</span>
+        <ul><li>Contador de resultados atualiza antes de aplicar</li><li>Filtro ativo vira chip na tela 4.2</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Detalhe da carona</div>
+        <div class="body tight">
+          <div class="map">mapa do trajeto</div>
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px">
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--fill)"></div>
+            <div style="flex:1">
+              <div class="line sm" style="width:60%;margin-bottom:5px"></div>
+              <div class="line sm" style="width:42%"></div>
+            </div>
+            <span class="tag">★ 4,8</span>
+          </div>
+          <div class="row-item"><span>Saída</span><span>07:30 · seg</span></div>
+          <div class="row-item"><span>Veículo</span><span>Honda Fit · prata</span></div>
+          <div class="row-item"><span>Vagas</span><span>2 de 3</span></div>
+          <div class="row-item"><span>Custo estimado <span class="tag f2">F2</span></span><span>R$ 6,40</span></div>
+          <div class="btn primary" style="margin-top:14px">Solicitar vaga</div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">4.5 Detalhe da carona</span>
+        <span class="story">Tudo que o passageiro precisa antes de pedir vaga</span>
+        <ul><li>Valor estimado aparece aqui quando o EP08 entrar</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> 0 caronas</div>
+        <div class="body">
+          <div class="empty">
+            <div class="ic"></div>
+            <div class="line sm" style="width:72%;margin:0 auto 6px"></div>
+            <p>Nenhuma carona nesse horário</p>
+            <div class="btn ghost">Ampliar para 06:00 — 09:00</div>
+            <div class="btn ghost">Avisar quando surgir</div>
+          </div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">4.6 Busca sem resultado</span>
+        <span class="story">Estado vazio da busca</span>
+        <ul><li>Sempre oferece uma saída, nunca só "nada encontrado"</li><li>"Avisar quando surgir" depende do EP06</li></ul>
+      </figcaption>
+    </figure>
+
+  </div>
+</section>
+
+<section class="epic">
+  <h2>EP05 — Solicitação e confirmação de vagas</h2>
+  <p class="sub">Pedir vaga não é reservar vaga. Todo o desenho aqui existe pra deixar essa diferença óbvia e pra manter a contagem de vagas confiável dos dois lados.</p>
+  <div class="grid">
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Solicitar vaga</div>
+        <div class="body">
+          <div class="card muted">
+            <div class="line sm" style="width:75%;margin-bottom:6px"></div>
+            <div class="line sm" style="width:50%"></div>
+          </div>
+          <p class="label" style="margin-top:14px">Ponto de embarque</p>
+          <div class="field"><span>usar meu endereço</span><span>⌄</span></div>
+          <p class="label">Mensagem ao motorista (opcional)</p>
+          <div class="field tall"></div>
+          <div class="btn primary">Enviar solicitação</div>
+          <p class="hint free" style="text-align:center;margin-top:12px">a vaga só é confirmada após o motorista aceitar</p>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">5.1 Solicitar vaga</span>
+        <span class="story">Solicitação só é permitida se houver vaga</span>
+        <ul><li>Botão fica indisponível em rota lotada</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar">Solicitações <span class="right">3 pendentes</span></div>
+        <div class="body tight">
+          <div class="card">
+            <div class="row">
+              <div class="av"></div>
+              <div class="col">
+                <div class="line sm" style="width:62%;margin-bottom:5px"></div>
+                <div class="line sm" style="width:80%"></div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:11px">
+              <div class="btn primary" style="flex:1;height:32px">Aceitar</div>
+              <div class="btn ghost" style="flex:1;height:32px;margin:0">Recusar</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="row">
+              <div class="av"></div>
+              <div class="col">
+                <div class="line sm" style="width:55%;margin-bottom:5px"></div>
+                <div class="line sm" style="width:72%"></div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:11px">
+              <div class="btn primary" style="flex:1;height:32px">Aceitar</div>
+              <div class="btn ghost" style="flex:1;height:32px;margin:0">Recusar</div>
+            </div>
+          </div>
+          <p class="hint free">ao aceitar, a vaga é decrementada na hora</p>
+        </div>
+        <div class="tabbar"><div>Buscar</div><div class="on">Caronas</div><div>Avisos<span class="badge">3</span></div><div>Perfil</div></div>
+      </div>
+      <figcaption>
+        <span class="name">5.2 Solicitações (motorista)</span>
+        <span class="story">Ao aceitar, vaga é decrementada</span>
+        <ul><li>Última vaga aceita fecha a rota automaticamente</li><li>Recusa pede motivo opcional</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar">Minhas caronas</div>
+        <div class="body tight">
+          <div class="seg"><div class="on">Próximas</div><div>Histórico</div></div>
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;margin-bottom:7px">
+              <span class="tag">amanhã · 07:30</span><span class="tag solid">aguardando</span>
+            </div>
+            <div class="line sm" style="width:82%;margin-bottom:5px"></div>
+            <div class="line sm" style="width:58%;margin-bottom:9px"></div>
+            <div class="btn ghost" style="height:30px">Cancelar solicitação</div>
+          </div>
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;margin-bottom:7px">
+              <span class="tag">sex · 18:00</span><span class="tag">confirmada</span>
+            </div>
+            <div class="line sm" style="width:76%;margin-bottom:5px"></div>
+            <div class="line sm" style="width:50%"></div>
+          </div>
+        </div>
+        <div class="tabbar"><div>Buscar</div><div class="on">Caronas</div><div>Avisos</div><div>Perfil</div></div>
+      </div>
+      <figcaption>
+        <span class="name">5.3 Minhas caronas (passageiro)</span>
+        <span class="story">Estados: aguardando, confirmada, recusada, cancelada</span>
+        <ul><li>Cancelamento do passageiro é Fase 2 e tem prazo mínimo</li><li>Vaga cancelada volta pro total da rota</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Detalhe da carona</div>
+        <div class="body tight">
+          <div class="map">mapa do trajeto</div>
+          <div class="card muted" style="text-align:center;padding:14px">
+            <div class="line sm" style="width:60%;margin:0 auto 6px"></div>
+            <p class="hint free" style="margin:0">rota lotada — sem vagas disponíveis</p>
+          </div>
+          <div class="btn disabled" style="margin-top:12px">Solicitar vaga</div>
+          <div class="btn ghost">Ver caronas parecidas</div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">5.4 Rota lotada</span>
+        <span class="story">Rota lotada some da listagem de busca</span>
+        <ul><li>Quem já tinha o link ainda chega aqui: estado precisa existir</li></ul>
+      </figcaption>
+    </figure>
+
+  </div>
+</section>
+
+<section class="epic">
+  <h2>EP06 — Notificações em tempo real</h2>
+  <p class="sub">Como o combinado depende de aceite entre duas pessoas, notificação não é enfeite: é onde a carona se fecha. Toda notificação leva direto pra tela da ação.</p>
+  <div class="grid">
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar">Avisos <span class="right">marcar lidas</span></div>
+        <div class="body tight">
+          <div class="row-item" style="align-items:flex-start">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--ink);margin-top:5px;flex:none"></span>
+            <div style="flex:1">
+              <div class="line sm" style="width:92%;margin-bottom:5px"></div>
+              <div class="line sm" style="width:45%"></div>
+            </div>
+            <span class="chev">2h</span>
+          </div>
+          <div class="row-item" style="align-items:flex-start">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--ink);margin-top:5px;flex:none"></span>
+            <div style="flex:1">
+              <div class="line sm" style="width:80%;margin-bottom:5px"></div>
+              <div class="line sm" style="width:38%"></div>
+            </div>
+            <span class="chev">5h</span>
+          </div>
+          <div class="row-item" style="align-items:flex-start">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--line);margin-top:5px;flex:none"></span>
+            <div style="flex:1">
+              <div class="line sm" style="width:88%;margin-bottom:5px"></div>
+              <div class="line sm" style="width:40%"></div>
+            </div>
+            <span class="chev">ont</span>
+          </div>
+        </div>
+        <div class="tabbar"><div>Buscar</div><div>Caronas</div><div class="on">Avisos<span class="badge">2</span></div><div>Perfil</div></div>
+      </div>
+      <figcaption>
+        <span class="name">6.1 Avisos</span>
+        <span class="story">Solicitação, aceite, recusa e cancelamento</span>
+        <ul><li>Badge na aba = contagem de pendências do motorista</li><li>Aviso de cancelamento carrega o motivo junto</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="body" style="padding:10px">
+          <div class="card" style="margin-bottom:8px">
+            <div style="display:flex;gap:8px;align-items:flex-start">
+              <div class="box" style="width:22px;height:22px;border-radius:5px;flex:none"></div>
+              <div style="flex:1">
+                <div class="line sm" style="width:52%;margin-bottom:5px"></div>
+                <div class="line sm" style="width:90%;margin-bottom:4px"></div>
+                <div class="line sm" style="width:65%"></div>
+              </div>
+              <span class="chev" style="font-size:10px;color:var(--ink3)">agora</span>
+            </div>
+          </div>
+          <div class="card" style="opacity:.6">
+            <div style="display:flex;gap:8px;align-items:flex-start">
+              <div class="box" style="width:22px;height:22px;border-radius:5px;flex:none"></div>
+              <div style="flex:1">
+                <div class="line sm" style="width:48%;margin-bottom:5px"></div>
+                <div class="line sm" style="width:82%"></div>
+              </div>
+            </div>
+          </div>
+          <p class="hint free" style="text-align:center;margin-top:16px">push entregue em até 5s após o evento</p>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">6.2 Push na tela de bloqueio</span>
+        <span class="story">Notificação entregue em até 5s</span>
+        <ul><li>Texto do push precisa caber em 2 linhas</li><li>Toque abre a tela da ação, não a lista genérica</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Conversa <span class="right">Fase 2</span></div>
+        <div class="body tight" style="min-height:250px">
+          <p class="hint free" style="text-align:center">chat liberado após a confirmação da vaga</p>
+          <div class="msg them"><div class="line sm" style="width:80%;margin-bottom:5px"></div><div class="line sm" style="width:55%"></div></div>
+          <div class="msg me"><div class="line sm" style="width:70%"></div></div>
+          <div class="msg them"><div class="line sm" style="width:60%"></div></div>
+        </div>
+        <div style="display:flex;gap:8px;padding:10px;border-top:1px solid var(--line2)">
+          <div class="field" style="flex:1;margin:0">mensagem</div>
+          <div class="btn primary" style="width:38px;height:34px">↑</div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">6.3 Chat</span>
+        <span class="story">Disponível apenas após confirmação · Fase 2</span>
+        <ul><li>Antes disso, a conversa acontece na mensagem da solicitação</li><li>Chat encerra depois da viagem avaliada</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Notificações</div>
+        <div class="body">
+          <p class="label">Quero ser avisado sobre</p>
+          <div class="row-item"><span>Solicitações recebidas</span><span class="chev">◉</span></div>
+          <div class="row-item"><span>Aceite ou recusa</span><span class="chev">◉</span></div>
+          <div class="row-item"><span>Cancelamentos</span><span class="chev">◉</span></div>
+          <div class="row-item"><span>Mensagens <span class="tag f2">F2</span></span><span class="chev">◉</span></div>
+          <div class="row-item"><span>Lembrete antes da viagem <span class="tag f2">F2</span></span><span class="chev">○</span></div>
+          <p class="label" style="margin-top:14px">Antecedência do lembrete</p>
+          <div class="field"><span>30 minutos antes</span><span>⌄</span></div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">6.4 Preferências de aviso</span>
+        <span class="story">Lembrete enviado via push · Fase 2</span>
+        <ul><li>Avisos críticos (cancelamento) não podem ser desligados</li></ul>
+      </figcaption>
+    </figure>
+
+  </div>
+</section>
+
+<section class="epic">
+  <h2>EP07 — Avaliação mútua</h2>
+  <p class="sub">É o que sustenta confiança entre desconhecidos da mesma faculdade. Avaliação só abre depois que a viagem muda de status, senão vira ferramenta de pressão antes da carona acontecer.</p>
+  <div class="grid">
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Avaliar carona</div>
+        <div class="body">
+          <div class="avatar" style="margin:10px auto 12px">foto</div>
+          <div class="line sm" style="width:55%;margin:0 auto 6px"></div>
+          <div class="line sm" style="width:70%;margin:0 auto 6px"></div>
+          <div class="stars">★ ★ ★ ★ ★</div>
+          <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:14px">
+            <span class="tag">pontual</span><span class="tag">boa conversa</span><span class="tag">dirige bem</span>
+          </div>
+          <p class="label">Comentário (opcional)</p>
+          <div class="field tall"></div>
+          <div class="btn primary">Enviar avaliação</div>
+          <div class="btn ghost">Agora não</div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">7.1 Avaliar</span>
+        <span class="story">Liberada só após o status de viagem concluída</span>
+        <ul><li>Mesma tela pros dois papéis, mudam só os atalhos</li><li>Pulável, mas volta como aviso depois</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Avaliações <span class="right">Fase 2</span></div>
+        <div class="body tight">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+            <div style="font-size:26px;font-weight:600">4,8</div>
+            <div style="flex:1">
+              <div class="stars" style="justify-content:flex-start;margin:0 0 4px;font-size:14px">★ ★ ★ ★ ★</div>
+              <p class="hint free" style="margin:0">23 avaliações · motorista</p>
+            </div>
+          </div>
+          <div class="seg"><div class="on">Como motorista</div><div>Como passageiro</div></div>
+          <div class="card">
+            <div class="row">
+              <div class="av"></div>
+              <div class="col"><div class="line sm" style="width:45%;margin-bottom:5px"></div><div class="line sm" style="width:85%"></div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="row">
+              <div class="av"></div>
+              <div class="col"><div class="line sm" style="width:40%;margin-bottom:5px"></div><div class="line sm" style="width:70%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">7.2 Avaliações recebidas</span>
+        <span class="story">Perfil exibe média e nº de avaliações · Fase 2</span>
+        <ul><li>Média separada por papel: dirigir bem ≠ ser bom passageiro</li><li>Essa média alimenta o filtro da tela 4.4</li></ul>
+      </figcaption>
+    </figure>
+
+  </div>
+</section>
+
+<section class="epic">
+  <h2>EP08 — Divisão estimada de custos</h2>
+  <p class="sub">O app não processa pagamento: ele só estima e mostra. A palavra "estimado" precisa estar visível em toda tela onde o valor aparece, pra não virar promessa de preço.</p>
+  <div class="grid">
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Custo da carona <span class="right">Fase 2</span></div>
+        <div class="body">
+          <p class="label">Consumo do veículo (km/l)</p>
+          <div class="field"><span>12,5</span><span>do meu veículo</span></div>
+          <p class="label">Preço do combustível (R$/l)</p>
+          <div class="field">5,89</div>
+          <p class="hint">valores padrão sugeridos, editáveis pelo motorista</p>
+          <p class="label">Pedágio (opcional)</p>
+          <div class="field">0,00</div>
+          <div class="row-item" style="border:0;padding:2px 0 12px">
+            <span style="display:flex;gap:8px;align-items:center"><span style="width:15px;height:15px;border:1px solid var(--line);border-radius:3px"></span> Mostrar estimativa aos passageiros</span>
+          </div>
+          <div class="btn primary">Salvar</div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">8.1 Informar custos (motorista)</span>
+        <span class="story">Campos com valores padrão sugeridos</span>
+        <ul><li>Motorista pode desligar a exibição</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Custo estimado <span class="right">Fase 2</span></div>
+        <div class="body">
+          <div style="text-align:center;margin:10px 0 16px">
+            <div style="font-size:28px;font-weight:600">R$ 6,40</div>
+            <p class="hint free" style="margin:2px 0 0">por passageiro</p>
+          </div>
+          <div class="row-item"><span>Distância</span><span>18,4 km</span></div>
+          <div class="row-item"><span>Consumo</span><span>12,5 km/l</span></div>
+          <div class="row-item"><span>Combustível</span><span>R$ 5,89/l</span></div>
+          <div class="row-item"><span>Pedágio</span><span>R$ 0,00</span></div>
+          <div class="row-item"><span>Dividido entre</span><span>1 motorista + 3</span></div>
+          <div class="card muted" style="margin-top:12px">
+            <p class="hint free" style="margin:0">valor estimado. o acerto é feito diretamente entre vocês, fora do app</p>
+          </div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">8.2 Detalhe do custo (passageiro)</span>
+        <span class="story">Valor exibido na tela de detalhe da carona</span>
+        <ul><li>Fórmula visível linha a linha evita discussão depois</li><li>Deixa explícito que o app não intermedia pagamento</li></ul>
+      </figcaption>
+    </figure>
+
+  </div>
+</section>
+
+<section class="epic">
+  <h2>EP09 — Histórico de viagens</h2>
+  <p class="sub">Mesma aba "Caronas", duas visões: o que ainda vai acontecer e o que já aconteceu. O histórico guarda o papel de cada viagem, porque a mesma pessoa dirige um dia e pega carona no outro.</p>
+  <div class="grid">
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar">Minhas caronas <span class="right">Fase 2</span></div>
+        <div class="body tight">
+          <div class="seg"><div class="on">Próximas</div><div>Histórico</div></div>
+          <p class="label">Amanhã</p>
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;margin-bottom:7px">
+              <span class="tag">07:30</span><span class="tag">passageiro</span>
+            </div>
+            <div class="line sm" style="width:80%;margin-bottom:5px"></div>
+            <div class="line sm" style="width:55%"></div>
+          </div>
+          <p class="label">Sexta</p>
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;margin-bottom:7px">
+              <span class="tag">18:00</span><span class="tag">motorista</span>
+            </div>
+            <div class="line sm" style="width:72%;margin-bottom:5px"></div>
+            <div class="line sm" style="width:48%"></div>
+          </div>
+        </div>
+        <div class="tabbar"><div>Buscar</div><div class="on">Caronas</div><div>Avisos</div><div>Perfil</div></div>
+      </div>
+      <figcaption>
+        <span class="name">9.1 Próximas viagens</span>
+        <span class="story">Lista ordenada por data e horário · Fase 2</span>
+        <ul><li>Agrupada por dia, não lista corrida</li><li>Etiqueta de papel em cada card</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar">Minhas caronas <span class="right">Fase 2</span></div>
+        <div class="body tight">
+          <div class="seg"><div>Próximas</div><div class="on">Histórico</div></div>
+          <div style="display:flex;gap:6px;margin-bottom:10px">
+            <span class="tag">todos os papéis ⌄</span><span class="tag">últimos 30 dias ⌄</span>
+          </div>
+          <div class="row-item" style="align-items:flex-start">
+            <div style="flex:1"><div class="line sm" style="width:78%;margin-bottom:5px"></div><div class="line sm" style="width:42%"></div></div>
+            <span class="tag">★ 5,0</span>
+          </div>
+          <div class="row-item" style="align-items:flex-start">
+            <div style="flex:1"><div class="line sm" style="width:70%;margin-bottom:5px"></div><div class="line sm" style="width:38%"></div></div>
+            <span class="tag">avaliar</span>
+          </div>
+          <div class="row-item" style="align-items:flex-start">
+            <div style="flex:1"><div class="line sm" style="width:82%;margin-bottom:5px"></div><div class="line sm" style="width:45%"></div></div>
+            <span class="tag">cancelada</span>
+          </div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">9.2 Histórico</span>
+        <span class="story">Inclui data, rota e papel · Fase 2</span>
+        <ul><li>Viagem sem avaliação vira atalho pra tela 7.1</li><li>Canceladas ficam no histórico, com o motivo</li></ul>
+      </figcaption>
+    </figure>
+
+  </div>
+</section>
+
+<section class="epic">
+  <h2>EP10 — Moderação e administração</h2>
+  <p class="sub">Único bloco fora do app: o administrador trabalha em tela grande, com tabela e filtro. São três telas de painel web, não de celular.</p>
+  <div class="grid">
+
+    <figure class="screen wide">
+      <div class="desk">
+        <div class="chrome"><span></span><span></span><span></span></div>
+        <div class="layout">
+          <div class="side">
+            <div class="nav on">Verificações</div>
+            <div class="nav">Usuários</div>
+            <div class="nav">Métricas</div>
+            <div class="nav">Parâmetros</div>
+          </div>
+          <div class="main">
+            <h5>Solicitações pendentes</h5>
+            <div style="display:flex;gap:6px;margin-bottom:12px">
+              <span class="tag">pendentes ⌄</span><span class="tag">mais antigas ⌄</span>
+            </div>
+            <table class="tbl">
+              <tr><th>Usuário</th><th>E-mail</th><th>Documento</th><th>Enviado</th><th></th></tr>
+              <tr><td>—</td><td>—</td><td>PDF</td><td>2 dias</td><td><span class="tag">analisar</span></td></tr>
+              <tr><td>—</td><td>—</td><td>imagem</td><td>3 dias</td><td><span class="tag">analisar</span></td></tr>
+              <tr><td>—</td><td>—</td><td>PDF</td><td>5 dias</td><td><span class="tag">analisar</span></td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">10.1 Painel de verificações</span>
+        <span class="story">Lista solicitações pendentes · Fase 2</span>
+        <ul><li>Aprovar e recusar em massa pra fila não empilhar</li><li>Recusa exige motivo, que volta pro usuário na tela 1.6</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen wide">
+      <div class="desk">
+        <div class="chrome"><span></span><span></span><span></span></div>
+        <div class="layout">
+          <div class="side">
+            <div class="nav">Verificações</div>
+            <div class="nav on">Usuários</div>
+            <div class="nav">Métricas</div>
+            <div class="nav">Parâmetros</div>
+          </div>
+          <div class="main">
+            <h5>Usuários</h5>
+            <div class="field" style="margin-bottom:12px"><span>buscar por nome ou e-mail</span><span>⌕</span></div>
+            <table class="tbl">
+              <tr><th>Usuário</th><th>Papel</th><th>Nota</th><th>Denúncias</th><th>Status</th></tr>
+              <tr><td>—</td><td>motorista</td><td>★ 4,8</td><td>0</td><td><span class="tag">ativo</span></td></tr>
+              <tr><td>—</td><td>ambos</td><td>★ 3,1</td><td>3</td><td><span class="tag">em análise</span></td></tr>
+              <tr><td>—</td><td>passageiro</td><td>★ 2,4</td><td>5</td><td><span class="tag solid">suspenso</span></td></tr>
+            </table>
+            <p class="hint free" style="margin-top:12px">usuário suspenso não consegue entrar nem publicar caronas</p>
+          </div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">10.2 Moderação de usuários</span>
+        <span class="story">Suspensão bloqueia login e publicação · Fase 2</span>
+        <ul><li>Suspensão precisa de motivo registrado e data</li><li>Caronas futuras do suspenso são canceladas em cascata</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen wide">
+      <div class="desk">
+        <div class="chrome"><span></span><span></span><span></span></div>
+        <div class="layout">
+          <div class="side">
+            <div class="nav">Verificações</div>
+            <div class="nav">Usuários</div>
+            <div class="nav on">Métricas</div>
+            <div class="nav">Parâmetros</div>
+          </div>
+          <div class="main">
+            <h5>Visão geral</h5>
+            <div class="kpi">
+              <div><div class="n"></div><div class="l"></div></div>
+              <div><div class="n"></div><div class="l"></div></div>
+              <div><div class="n"></div><div class="l"></div></div>
+            </div>
+            <p class="label">Caronas concluídas por semana</p>
+            <div class="bars">
+              <div style="height:40%"></div><div style="height:58%"></div><div style="height:35%"></div>
+              <div style="height:72%"></div><div style="height:64%"></div><div style="height:88%"></div>
+              <div style="height:52%"></div><div style="height:80%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">10.3 Dashboard de métricas</span>
+        <span class="story">Gráficos atualizados · Could · Fase 2</span>
+        <ul><li>Indicadores sugeridos: usuários ativos, caronas concluídas, taxa de aceite</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen wide">
+      <div class="desk">
+        <div class="chrome"><span></span><span></span><span></span></div>
+        <div class="layout">
+          <div class="side">
+            <div class="nav">Verificações</div>
+            <div class="nav">Usuários</div>
+            <div class="nav">Métricas</div>
+            <div class="nav on">Parâmetros</div>
+          </div>
+          <div class="main">
+            <h5>Regras de matching</h5>
+            <div style="display:flex;gap:16px">
+              <div style="flex:1">
+                <p class="label">Raio máximo de embarque</p>
+                <div class="field">3 km</div>
+                <p class="label">Janela de horário</p>
+                <div class="field">± 20 min</div>
+              </div>
+              <div style="flex:1">
+                <p class="label">Desvio máximo aceitável</p>
+                <div class="field">15 min</div>
+                <p class="label">Peso da avaliação no score</p>
+                <div class="field">20%</div>
+              </div>
+            </div>
+            <p class="hint free">alterações recalculam o ranking em até 5s</p>
+            <div class="btn primary" style="width:140px">Salvar parâmetros</div>
+          </div>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">10.4 Parâmetros de matching</span>
+        <span class="story">Parâmetros configuráveis pelo administrador</span>
+        <ul><li>História do EP04 que não tinha tela: é aqui que ela mora</li><li>Mudança de peso deve exigir confirmação — afeta todos os usuários</li></ul>
+      </figcaption>
+    </figure>
+
+  </div>
+</section>
+
+<section class="epic">
+  <h2>Padrões transversais</h2>
+  <p class="sub">Estados que se repetem em várias telas. Definidos uma vez aqui pra não serem improvisados de forma diferente em cada tela.</p>
+  <div class="grid">
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar">Minhas caronas</div>
+        <div class="body">
+          <div class="empty">
+            <div class="ic"></div>
+            <div class="line sm" style="width:70%;margin:0 auto 6px"></div>
+            <p>Você ainda não tem caronas marcadas</p>
+            <div class="btn primary">Buscar carona</div>
+          </div>
+        </div>
+        <div class="tabbar"><div>Buscar</div><div class="on">Caronas</div><div>Avisos</div><div>Perfil</div></div>
+      </div>
+      <figcaption>
+        <span class="name">P.1 Estado vazio</span>
+        <span class="story">Vale pra caronas, avisos, histórico e avaliações</span>
+        <ul><li>Sempre com uma ação, nunca só "nada aqui"</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Resultados</div>
+        <div class="body tight">
+          <div class="card"><div class="line" style="width:100%;margin-bottom:8px"></div><div class="line sm" style="width:60%"></div></div>
+          <div class="card"><div class="line" style="width:100%;margin-bottom:8px"></div><div class="line sm" style="width:45%"></div></div>
+          <div class="card"><div class="line" style="width:100%;margin-bottom:8px"></div><div class="line sm" style="width:55%"></div></div>
+          <p class="hint free" style="text-align:center">esqueleto durante o carregamento, não spinner</p>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">P.2 Carregando</span>
+        <span class="story">Esqueleto com a forma do conteúdo final</span>
+        <ul><li>Evita pulo de layout quando os dados chegam</li></ul>
+      </figcaption>
+    </figure>
+
+    <figure class="screen">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+        <div class="bar"><span class="back">←</span> Resultados</div>
+        <div class="body">
+          <div class="empty">
+            <div class="ic"></div>
+            <div class="line sm" style="width:65%;margin:0 auto 6px"></div>
+            <p>Não foi possível carregar as caronas</p>
+            <div class="btn primary">Tentar de novo</div>
+          </div>
+          <p class="hint free" style="text-align:center">erro diz o que houve e oferece a saída, sem jargão técnico</p>
+        </div>
+      </div>
+      <figcaption>
+        <span class="name">P.3 Erro de conexão</span>
+        <span class="story">Padrão para falha de rede ou servidor</span>
+        <ul><li>Nunca mostrar código de erro cru pro usuário</li></ul>
+      </figcaption>
+    </figure>
+
+  </div>
+</section>
+
+<footer class="end">
+  <h3>Telas por épico</h3>
+  <ul>
+    <li>EP01 autenticação: 6 telas · EP02 perfil: 3 · EP03 rotas: 5 · EP04 busca e matching: 6 · EP05 vagas: 4</li>
+    <li>EP06 notificações: 4 · EP07 avaliação: 2 · EP08 custos: 2 · EP09 histórico: 2 · EP10 admin: 4 · padrões: 3</li>
+  </ul>
+
+  <h3>Decisões que o desenho assumiu</h3>
+  <ul>
+    <li>Perfil único com alternância de papel, em vez de duas contas separadas</li>
+    <li>Solicitação de vaga sempre passa por aceite do motorista — não existe reserva automática</li>
+    <li>O app estima custo mas não intermedia pagamento; o acerto acontece fora</li>
+    <li>Score de matching tem tela própria de explicação, pra não virar caixa-preta</li>
+    <li>Painel administrativo é web, não mobile</li>
+  </ul>
+
+  <h3>Pendências pra Sprint Planning</h3>
+  <ul>
+    <li>Conta do aluno que se forma e perde o e-mail institucional: expira, migra ou vira somente leitura?</li>
+    <li>CNH é exigida no cadastro do veículo ou só na publicação da primeira carona?</li>
+    <li>Prazo mínimo pro passageiro cancelar sem penalidade (o critério do EP05 diz "menos de X")</li>
+    <li>Denúncia de usuário não tem história no backlog, mas a moderação do EP10 depende de alguma entrada</li>
+    <li>Cancelamento de carona recorrente: cancela a instância ou a série inteira?</li>
+  </ul>
+</footer>
+
+</div>
+</body>
+</html>
