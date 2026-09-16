@@ -15,7 +15,18 @@
       "package": "br.edu.pucsp.caronauniversitaria",
       "edgeToEdgeEnabled": true
     },
-    "plugins": ["expo-router", "expo-secure-store"],
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "@react-native-community/datetimepicker",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "O app precisa acessar suas fotos para você escolher a foto do perfil.",
+          "cameraPermission": "O app precisa da câmera para você tirar a foto do perfil."
+        }
+      ]
+    ],
     "experiments": {
       "typedRoutes": true
     }

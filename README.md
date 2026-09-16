@@ -8,9 +8,10 @@ dividido de forma estimada.
 Projeto da disciplina **Gestão Ágil de Projetos** — PUC-SP, Ciência da
 Computação (Prof. Mário Farah).
 
-> **Status:** Sprint 1 em andamento. Cadastro com e-mail institucional e login
-> (com bloqueio temporário por tentativas inválidas) já estão implementados —
-> ver [detalhes da arquitetura de autenticação](docs/autenticacao.md).
+> **Status:** Sprint 2 em andamento. Autenticação (EP01), perfil e veículo
+> (EP02) e cadastro de rotas (EP03) já estão implementados — ver
+> [autenticação](docs/autenticacao.md) e
+> [perfil, veículo e rotas](docs/perfil-veiculo-rotas.md).
 
 ---
 
@@ -25,9 +26,9 @@ cadastro institucional → perfil → publicar rota → buscar/solicitar vaga
 → aceitar/recusar → notificar → avaliar
 ```
 
-O MVP está dividido em 7 épicos. Os dois primeiros — cadastro e perfil — são o
-foco do Sprint 1; busca/matching (EP04) e notificações em tempo real (EP06) são
-os núcleos de maior complexidade técnica do projeto.
+O MVP está dividido em 7 épicos. Os três primeiros — autenticação, perfil e
+rotas — já estão implementados; busca/matching (EP04) e notificações em tempo
+real (EP06) são os núcleos de maior complexidade técnica do projeto.
 
 ### Equipe
 
@@ -50,13 +51,29 @@ os núcleos de maior complexidade técnica do projeto.
 
 ## Funcionalidades implementadas
 
+**EP01 — Autenticação**
 - ✅ **Cadastro com e-mail institucional** — domínio validado no app antes de
   qualquer chamada de rede, e reforçado por um trigger no banco. Link de
   confirmação enviado por e-mail.
 - ✅ **Login** — redireciona para a Home ao validar as credenciais.
 - ✅ **Bloqueio temporário** — 3 tentativas inválidas bloqueiam a conta por 15
   minutos, controlado no servidor (não é possível burlar reinstalando o app).
-- ⏳ Perfil do usuário (foto, curso, campus, veículo) — em andamento.
+
+**EP02 — Perfil e veículo**
+- ✅ **Perfil** — foto, nome, curso, campus, telefone e bio. Perfil incompleto
+  exibe um aviso que diz exatamente o que falta.
+- ✅ **Alternância passageiro/motorista** — perfil único, sem conta separada.
+  O modo motorista só existe para quem cadastrou veículo.
+- ✅ **Veículo** — modelo, cor, placa (Mercosul ou antiga) e nº de vagas, que
+  passa a limitar todas as caronas do motorista.
+
+**EP03 — Rotas**
+- ✅ **Publicar carona** — origem e destino por busca de endereço com
+  geocodificação, data, horário, vagas e observações.
+- ✅ **Minhas caronas** — lista das viagens publicadas.
+
+**Próximos**
+- ⏳ Busca e matching de caronas (EP04) · notificações em tempo real (EP06)
 
 ## Como rodar
 
@@ -123,28 +140,37 @@ npm run typecheck
 ## Estrutura do projeto
 
 ```
-app/                          rotas (expo-router, file-based)
-  _layout.tsx                 AuthProvider na raiz
-  index.tsx                   redireciona conforme a sessão
-  (auth)/                     grupo público — redireciona quem já tem sessão
-    sign-in.tsx                login
-    sign-up.tsx                cadastro
-    verify-email.tsx           "confirme seu e-mail" (pós-cadastro)
-  (app)/                      grupo protegido — exige sessão
-    home.tsx                   destino do login válido
+app/                            rotas (expo-router, file-based)
+  _layout.tsx                   AuthProvider na raiz
+  index.tsx                     redireciona conforme a sessão
+  (auth)/                       grupo público — redireciona quem já tem sessão
+    sign-in.tsx                  login
+    sign-up.tsx                  cadastro
+    verify-email.tsx             "confirme seu e-mail" (pós-cadastro)
+  (app)/                        grupo protegido — exige sessão
+    home.tsx                     destino do login; aviso de perfil incompleto
+    complete-profile.tsx         onboarding do perfil
+    profile/index.tsx            perfil + alternância passageiro/motorista
+    profile/personal.tsx         editar dados pessoais
+    profile/vehicle.tsx          cadastro do veículo
+    routes/new.tsx               publicar carona
+    routes/index.tsx             minhas caronas
 src/
-  auth/
-    AuthContext.tsx           sessão, signUp, signIn, signOut
-    institutionalEmail.ts     validação de domínio (função pura)
-    authErrors.ts             erros → mensagens em pt-BR
-  components/                 TextField, PrimaryButton, Banner, AuthScreen
-  lib/supabase.ts             client com sessão no SecureStore (fatiada)
-  theme/tokens.ts             cores, espaçamentos, tipografia
+  auth/                         sessão, validação de domínio, erros em pt-BR
+  profile/                      contexto, API, formulário e regras de completude
+  vehicle/                      API e regras (placa, vagas)
+  routes/                       API e regras (horário, limite de vagas)
+  geocode/                      cliente da busca de endereço
+  components/                   campos, selects, estados vazio/erro/carregando
+  lib/                          client Supabase e listas de referência
+  theme/tokens.ts               cores, espaçamentos, tipografia
 supabase/
-  config.toml                 config do CLI + settings de Auth versionadas
-  migrations/                 schema versionado (já aplicado no projeto)
-  functions/auth-login/       Edge Function do login
-__tests__/                    testes das funções puras
+  config.toml                   config do CLI + settings de Auth versionadas
+  migrations/                   schema versionado (já aplicado no projeto)
+  functions/auth-login/         Edge Function do login
+  functions/geocode/            Edge Function da busca de endereço
+docs/                           decisões de arquitetura e wireframes
+__tests__/                      testes das funções puras
 ```
 
 O guard de sessão vive nos layouts de grupo, não nas telas: toda rota nova
@@ -167,10 +193,17 @@ npx supabase db push
 npx supabase functions deploy auth-login
 ```
 
+```bash
+npx supabase functions deploy geocode
+```
+
 ## Documentação
 
-- [Arquitetura de autenticação](docs/autenticacao.md) — decisões de design,
-  esquema do banco e como verificar os critérios de aceite do Sprint 1.
+- [Arquitetura de autenticação](docs/autenticacao.md) — EP01: validação de
+  domínio institucional e bloqueio por tentativas.
+- [Perfil, veículo e rotas](docs/perfil-veiculo-rotas.md) — EP02 e EP03:
+  completude de perfil, limite de vagas, geocodificação e limitações conhecidas.
+- [Wireframes](docs/wireframes/) — esboços de referência de todos os épicos.
 - Backlog completo, Kanban e cronograma vivem no Notion (workspace `GAP 2026`).
 
 ## Licença
