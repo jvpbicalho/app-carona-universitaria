@@ -1,0 +1,11 @@
+-- Correção aplicada como migration própria no banco.
+--
+-- A primeira versão de profiles_ep02 liberava `profiles` com `using (true)` e
+-- confiava na view public_profiles para esconder e-mail e telefone. Não
+-- escondia: a tabela continua exposta pelo PostgREST. O desenho corrigido
+-- (RLS só na própria linha + view security definer com colunas seguras) já está
+-- incorporado a 20260916222936_profiles_ep02.sql.
+--
+-- Este arquivo fica vazio de propósito: existe para o histórico local
+-- corresponder 1:1 ao do banco, e assim `supabase db push` não reaplicar nada.
+select 1;

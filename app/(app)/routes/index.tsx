@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect } from 'expo-router';
 
@@ -14,7 +14,7 @@ import { colors, radius, spacing, typography } from '@/theme/tokens';
  * Wireframe 3.3 — "Minhas caronas" (lado motorista).
  *
  * Destino do "Publicar carona": sem esta tela a rota publicada sumiria de
- * vista. Detalhe da carona e cancelamento (3.4 e 3.5) são de outra história.
+ * vista. Tocar num cartão abre o detalhe (3.4), de onde se edita ou cancela.
  */
 export default function MyRoutesScreen() {
   const { profile, vehicle } = useProfile();
@@ -94,7 +94,12 @@ function RouteCard({ route }: { route: Route }) {
   const cancelled = route.status === 'cancelada';
 
   return (
-    <View style={[styles.card, cancelled && styles.cardCancelled]}>
+    <Pressable
+      onPress={() => router.push({ pathname: '/routes/[id]', params: { id: route.id } })}
+      accessibilityRole="button"
+      accessibilityHint="Abre o detalhe da carona"
+      style={({ pressed }) => [styles.card, cancelled && styles.cardCancelled, pressed && styles.cardPressed]}
+    >
       <Text style={styles.departure}>{formatDeparture(route.departureAt)}</Text>
 
       <Text style={styles.leg} numberOfLines={1}>
@@ -118,7 +123,7 @@ function RouteCard({ route }: { route: Route }) {
       </View>
 
       {route.notes ? <Text style={styles.notes}>{route.notes}</Text> : null}
-    </View>
+    </Pressable>
   );
 }
 
@@ -142,6 +147,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   cardCancelled: { opacity: 0.6 },
+  cardPressed: { backgroundColor: colors.surface },
   departure: { ...typography.label, color: colors.primary, marginBottom: spacing.sm },
   leg: { ...typography.body },
   arrow: { ...typography.helper, marginVertical: 2 },

@@ -8,7 +8,8 @@ type Props = {
   onPress: () => void;
   loading?: boolean;
   disabled?: boolean;
-  variant?: 'primary' | 'ghost';
+  /** 'danger' é para ação irreversível, como cancelar uma carona. */
+  variant?: 'primary' | 'ghost' | 'danger';
 };
 
 export function PrimaryButton({
@@ -20,6 +21,7 @@ export function PrimaryButton({
 }: Props) {
   const inactive = disabled || loading;
   const ghost = variant === 'ghost';
+  const danger = variant === 'danger';
 
   return (
     <Pressable
@@ -29,9 +31,11 @@ export function PrimaryButton({
       accessibilityState={{ disabled: inactive, busy: loading }}
       style={({ pressed }) => [
         styles.base,
-        ghost ? styles.ghost : styles.primary,
-        pressed && !inactive && (ghost ? styles.ghostPressed : styles.primaryPressed),
-        inactive && (ghost ? styles.ghostDisabled : styles.primaryDisabled),
+        ghost ? styles.ghost : danger ? styles.danger : styles.primary,
+        pressed &&
+          !inactive &&
+          (ghost ? styles.ghostPressed : danger ? styles.dangerPressed : styles.primaryPressed),
+        inactive && (ghost ? styles.ghostDisabled : danger ? styles.dangerDisabled : styles.primaryDisabled),
       ]}
     >
       {/* O spinner substitui o texto sem mudar a altura do botão. */}
@@ -58,6 +62,9 @@ const styles = StyleSheet.create({
   ghost: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.border },
   ghostPressed: { backgroundColor: colors.surface },
   ghostDisabled: { opacity: 0.5 },
+  danger: { backgroundColor: colors.danger },
+  dangerPressed: { backgroundColor: colors.dangerPressed },
+  dangerDisabled: { backgroundColor: colors.danger, opacity: 0.5 },
   label: { color: colors.onPrimary, fontSize: 16, fontWeight: '700' },
   ghostLabel: { color: colors.primary },
 });

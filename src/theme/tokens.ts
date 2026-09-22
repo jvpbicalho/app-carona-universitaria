@@ -11,6 +11,7 @@ export const colors = {
   primaryDisabled: '#A9C0DC',
   onPrimary: '#FFFFFF',
   danger: '#B3261E',
+  dangerPressed: '#8C1D18',
   dangerSurface: '#FCE9E7',
   success: '#136A3A',
   successSurface: '#E6F4EB',

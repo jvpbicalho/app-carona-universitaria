@@ -119,5 +119,5 @@ create policy "vehicles_delete_own"
   using (auth.uid() = owner_id);
 
 -- A view public_vehicles é criada na migration
--- 20260916120600_restrict_public_vehicle_data.sql, que define qual subconjunto
+-- 20260916225512_restrict_public_vehicle_data.sql, que define qual subconjunto
 -- de colunas pode ser visto por outros usuários.

@@ -61,7 +61,7 @@ protege nada. O desenho correto é o inverso:
 
 A view é `security_invoker = false` de propósito. O linter do Supabase marca
 isso como ERROR (`security_definer_view`); é aceito conscientemente, e a
-justificativa está na migration `20260916120600`. A alternativa (policy aberta
+justificativa está na migration `20260916225512`. A alternativa (policy aberta
 + grants por coluna) não serve, porque grant de coluna não depende da linha: o
 usuário perderia acesso ao próprio e-mail.
 
@@ -239,8 +239,9 @@ carona não pode oferecer N vagas: o veículo tem M."
 - **Tab bar não implementada.** O wireframe mostra Buscar/Caronas/Avisos/Perfil
   na base. Como EP04 e EP06 não existem, a navegação hoje é por Stack a partir
   da Home — criar abas com telas vazias seria prometer o que não há.
-- **Detalhe e cancelamento de carona** (wireframe 3.4 e 3.5) não entram: a
-  História 3 pede apenas o cadastro.
+- **Detalhe, edição e cancelamento de carona** (wireframe 3.4 e 3.5) foram
+  implementados na história seguinte — ver
+  [editar e cancelar rota](editar-cancelar-rota.md).
 - **Limite de e-mails do Supabase.** O SMTP padrão estoura a cota em poucos
   cadastros por hora (`over_email_send_rate_limit`). Continua sendo a pendência
   número um antes de qualquer teste com a turma.

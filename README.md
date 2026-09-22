@@ -8,10 +8,9 @@ dividido de forma estimada.
 Projeto da disciplina **Gestão Ágil de Projetos** — PUC-SP, Ciência da
 Computação (Prof. Mário Farah).
 
-> **Status:** Sprint 2 em andamento. Autenticação (EP01), perfil e veículo
-> (EP02) e cadastro de rotas (EP03) já estão implementados — ver
-> [autenticação](docs/autenticacao.md) e
-> [perfil, veículo e rotas](docs/perfil-veiculo-rotas.md).
+> **Status:** Autenticação (EP01), perfil e veículo (EP02) e rotas (EP03:
+> publicar, editar e cancelar) já estão implementados — ver a
+> [documentação](#documentação).
 
 ---
 
@@ -70,7 +69,11 @@ real (EP06) são os núcleos de maior complexidade técnica do projeto.
 **EP03 — Rotas**
 - ✅ **Publicar carona** — origem e destino por busca de endereço com
   geocodificação, data, horário, vagas e observações.
-- ✅ **Minhas caronas** — lista das viagens publicadas.
+- ✅ **Minhas caronas** — lista das viagens publicadas, com detalhe de cada uma.
+- ✅ **Editar e cancelar carona** — origem, destino, data e horário editáveis;
+  cancelamento com motivo obrigatório, preservando a carona no histórico.
+  Passageiros com vaga confirmada recebem aviso na mesma transação da mudança
+  (a entrega em push/tempo real chega com o EP06).
 
 **Próximos**
 - ⏳ Busca e matching de caronas (EP04) · notificações em tempo real (EP06)
@@ -155,6 +158,9 @@ app/                            rotas (expo-router, file-based)
     profile/vehicle.tsx          cadastro do veículo
     routes/new.tsx               publicar carona
     routes/index.tsx             minhas caronas
+    routes/[id]/index.tsx        detalhe da carona
+    routes/[id]/edit.tsx         editar carona
+    routes/[id]/cancel.tsx       cancelar carona
 src/
   auth/                         sessão, validação de domínio, erros em pt-BR
   profile/                      contexto, API, formulário e regras de completude
@@ -203,6 +209,8 @@ npx supabase functions deploy geocode
   domínio institucional e bloqueio por tentativas.
 - [Perfil, veículo e rotas](docs/perfil-veiculo-rotas.md) — EP02 e EP03:
   completude de perfil, limite de vagas, geocodificação e limitações conhecidas.
+- [Editar e cancelar rota](docs/editar-cancelar-rota.md) — soft delete, avisos
+  a passageiros confirmados e o contrato que EP05 e EP06 vão usar.
 - [Wireframes](docs/wireframes/) — esboços de referência de todos os épicos.
 - Backlog completo, Kanban e cronograma vivem no Notion (workspace `GAP 2026`).
 
