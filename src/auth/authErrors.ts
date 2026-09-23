@@ -53,6 +53,16 @@ export function describeSignUpError(error: { message?: string; code?: string } |
   if (code === 'weak_password' || message.includes('password')) {
     return 'Senha muito fraca. Use ao menos 8 caracteres, com letras e números.';
   }
+  // Formato recusado pelo Supabase Auth. A validação do app foi alinhada à do
+  // servidor e deveria barrar antes; se chegar aqui, ao menos diz o que é, em
+  // vez de cair na mensagem genérica — que foi o que escondeu esta causa.
+  if (
+    code === 'validation_failed' ||
+    code === 'email_address_invalid' ||
+    message.includes('unable to validate email')
+  ) {
+    return 'E-mail inválido. Use o endereço institucional sem acentos nem caracteres especiais.';
+  }
   if (code === 'over_email_send_rate_limit' || message.includes('rate limit')) {
     return 'Muitas tentativas de cadastro. Aguarde alguns minutos e tente de novo.';
   }

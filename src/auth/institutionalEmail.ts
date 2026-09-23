@@ -24,11 +24,24 @@ export function allowedDomains(): string[] {
 }
 
 /**
- * Formato de e-mail. Deliberadamente conservador em vez de "RFC-completo":
- * exige exatamente um "@", parte local não vazia, e um domínio com pelo menos
- * um ponto e sem hifens/pontos nas bordas de cada rótulo.
+ * Formato de e-mail.
+ *
+ * Parte local: EXATAMENTE o conjunto que o Supabase Auth aceita (a validação
+ * `checkmail` do GoTrue) — letras e dígitos ASCII e `.!#$%&'*+/=?^_\`{|}~-`.
+ * Antes aceitava qualquer coisa exceto espaço e "@", e o app deixava passar
+ * "joão@pucsp.edu.br": o servidor recusava com "invalid format" e o usuário
+ * via só uma mensagem genérica. Ser mais permissivo que o servidor é pior que
+ * ser igual — a validação do client existe justamente para barrar antes.
+ *
+ * Domínio: um ponto no mínimo, sem hífen nem ponto nas bordas dos rótulos.
+ * (Aqui é mais restrito que o servidor, o que é inofensivo: o domínio ainda
+ * precisa ser igual a um dos institucionais.)
  */
-const EMAIL_RE = /^[^\s@]+@[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/i;
+const EMAIL_RE =
+  /^[A-Za-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/i;
+
+/** Acento, cedilha ou qualquer caractere fora do ASCII. */
+const NON_ASCII_RE = /[^\x00-\x7F]/;
 
 export type EmailRejection =
   | 'empty'
@@ -71,6 +84,15 @@ export function validateInstitutionalEmail(
   }
 
   if (!EMAIL_RE.test(normalized)) {
+    // Caso mais provável em nomes brasileiros ("joão", "gonçalo"): vale uma
+    // mensagem que diz exatamente o que corrigir.
+    if (NON_ASCII_RE.test(normalized)) {
+      return {
+        ok: false,
+        reason: 'malformed',
+        message: 'Digite o e-mail sem acentos nem ç, exatamente como a universidade forneceu.',
+      };
+    }
     return { ok: false, reason: 'malformed', message: 'E-mail inválido. Verifique o que você digitou.' };
   }
 
