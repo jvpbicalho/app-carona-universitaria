@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "lib": [
       "ES2020"
     ],
@@ -13,7 +13,6 @@
       "jest",
       "node"
     ],
-    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"

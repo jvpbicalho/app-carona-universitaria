@@ -43,7 +43,7 @@ real (EP06) são os núcleos de maior complexidade técnica do projeto.
 
 | Camada | Tecnologia |
 |---|---|
-| App | React Native + Expo (SDK 54), `expo-router`, TypeScript (strict) |
+| App | React Native 0.86 + Expo (SDK 57), `expo-router`, TypeScript 6 (strict) |
 | Backend | Supabase — Postgres, Auth, Edge Functions (Deno) |
 | Testes | Jest + `ts-jest` |
 | Projeto Supabase | organização `GAP 2026` · projeto `app-carona-universitaria` |

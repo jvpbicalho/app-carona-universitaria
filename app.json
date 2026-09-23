@@ -6,14 +6,12 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "br.edu.pucsp.caronauniversitaria"
     },
     "android": {
-      "package": "br.edu.pucsp.caronauniversitaria",
-      "edgeToEdgeEnabled": true
+      "package": "br.edu.pucsp.caronauniversitaria"
     },
     "plugins": [
       "expo-router",
@@ -25,7 +23,8 @@
           "photosPermission": "O app precisa acessar suas fotos para você escolher a foto do perfil.",
           "cameraPermission": "O app precisa da câmera para você tirar a foto do perfil."
         }
-      ]
+      ],
+      "expo-status-bar"
     ],
     "experiments": {
       "typedRoutes": true
