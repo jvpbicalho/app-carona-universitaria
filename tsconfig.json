@@ -9,6 +9,10 @@
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
   "exclude": [
     "node_modules",
+    // Testes têm tsconfig próprio (tsconfig.jest.json, com os tipos do Jest).
+    // Desde o TypeScript 6, `types` não inclui mais todo @types/* por padrão,
+    // então aqui eles não enxergariam describe/it/expect.
+    "__tests__",
     // Cópias do projeto de sessões paralelas do Claude Code (git worktrees).
     ".claude",
     // Edge Functions rodam em Deno, não em React Native: têm globals (Deno.*) e
