@@ -21,7 +21,7 @@ import { colors, radius, spacing, typography } from '@/theme/tokens';
  * troca a Home e a aba Caronas".
  */
 export default function HomeScreen() {
-  const { profile, vehicle, loading, error, reload, incompleteWarning, activeRole, canDrive } =
+  const { profile, vehicle, loading, error, reload, incompleteWarning, activeRole } =
     useProfile();
 
   if (loading) {
@@ -84,9 +84,11 @@ export default function HomeScreen() {
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Encontre uma carona</Text>
             <Text style={typography.helper}>
-              A busca de caronas (EP04) chega no próximo sprint.
-              {canDrive ? ' Enquanto isso, você pode alternar para o modo motorista no perfil.' : ''}
+              Informe de onde sai, para onde vai e a que horas.
             </Text>
+            <View style={styles.cardAction}>
+              <PrimaryButton label="Buscar carona" onPress={() => router.push('/search')} />
+            </View>
           </View>
         )}
 

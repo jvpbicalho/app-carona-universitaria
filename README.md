@@ -8,9 +8,9 @@ dividido de forma estimada.
 Projeto da disciplina **Gestão Ágil de Projetos** — PUC-SP, Ciência da
 Computação (Prof. Mário Farah).
 
-> **Status:** Autenticação (EP01), perfil e veículo (EP02) e rotas (EP03:
-> publicar, editar e cancelar) já estão implementados — ver a
-> [documentação](#documentação).
+> **Status:** Autenticação (EP01), perfil e veículo (EP02), rotas (EP03:
+> publicar, editar e cancelar) e a busca de caronas (EP04) já estão
+> implementados — ver a [documentação](#documentação).
 
 ---
 
@@ -75,8 +75,15 @@ real (EP06) são os núcleos de maior complexidade técnica do projeto.
   Passageiros com vaga confirmada recebem aviso na mesma transação da mudança
   (a entrega em push/tempo real chega com o EP06).
 
+**EP04 — Busca**
+- ✅ **Buscar carona** — origem e destino por busca de endereço, data e horário.
+  Resultados ordenados por relevância (proximidade da origem e do destino +
+  diferença de horário), só com caronas ativas, futuras, com vaga e de outros
+  motoristas. Estado vazio oferece ampliar a janela de horário.
+
 **Próximos**
-- ⏳ Busca e matching de caronas (EP04) · notificações em tempo real (EP06)
+- ⏳ Tolerâncias de busca configuráveis (EP04) · solicitação de vaga (EP05) ·
+  notificações em tempo real (EP06)
 
 ## Como rodar
 
@@ -140,6 +147,11 @@ npm test
 npm run typecheck
 ```
 
+Os testes de lógica que mora no banco ficam em `supabase/tests/*.test.sql`.
+Rode o arquivo inteiro no **SQL Editor** do Supabase (ou com `psql`): ele cria
+os próprios dados, confere cada regra e desfaz tudo no fim (`ROLLBACK`). Sem
+erro = passou; uma regra quebrada falha com `FALHOU: ...`.
+
 ## Estrutura do projeto
 
 ```
@@ -161,11 +173,14 @@ app/                            rotas (expo-router, file-based)
     routes/[id]/index.tsx        detalhe da carona
     routes/[id]/edit.tsx         editar carona
     routes/[id]/cancel.tsx       cancelar carona
+    search/index.tsx             buscar carona
+    search/results.tsx           resultados da busca
 src/
   auth/                         sessão, validação de domínio, erros em pt-BR
   profile/                      contexto, API, formulário e regras de completude
   vehicle/                      API e regras (placa, vagas)
   routes/                       API e regras (horário, limite de vagas)
+  search/                       API e regras da busca de caronas
   geocode/                      cliente da busca de endereço
   components/                   campos, selects, estados vazio/erro/carregando
   lib/                          client Supabase e listas de referência
@@ -175,6 +190,7 @@ supabase/
   migrations/                   schema versionado (já aplicado no projeto)
   functions/auth-login/         Edge Function do login
   functions/geocode/            Edge Function da busca de endereço
+  tests/                        testes SQL (ex.: search_rides.test.sql)
 docs/                           decisões de arquitetura e wireframes
 __tests__/                      testes das funções puras
 ```
@@ -211,6 +227,8 @@ npx supabase functions deploy geocode
   completude de perfil, limite de vagas, geocodificação e limitações conhecidas.
 - [Editar e cancelar rota](docs/editar-cancelar-rota.md) — soft delete, avisos
   a passageiros confirmados e o contrato que EP05 e EP06 vão usar.
+- [Buscar caronas](docs/busca-caronas.md) — fórmula de relevância, limites em
+  um lugar só, desempenho medido e o ponto de extensão das vagas.
 - [Wireframes](docs/wireframes/) — esboços de referência de todos os épicos.
 - Backlog completo, Kanban e cronograma vivem no Notion (workspace `GAP 2026`).
 
