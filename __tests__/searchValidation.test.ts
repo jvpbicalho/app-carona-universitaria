@@ -115,7 +115,7 @@ describe('formatDistance', () => {
 
 describe('formatTimeDifference', () => {
   it.each([
-    [0, 'no horário'],
+    [0, 'No horário'],
     [12, '12 min depois'],
     [-10, '10 min antes'],
     [60, '1 h depois'],

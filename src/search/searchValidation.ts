@@ -48,7 +48,7 @@ export function validateSearchForm(draft: SearchDraft, now: Date = new Date()): 
   if (!draft.desiredAt) {
     errors.push({ field: 'desiredAt', message: 'Escolha a data e o horário em que quer sair.' });
   } else if (Number.isNaN(draft.desiredAt.getTime())) {
-    errors.push({ field: 'desiredAt', message: 'Data ou horário inválidos.' });
+    errors.push({ field: 'desiredAt', message: 'Data ou horário inválidos. Escolha de novo nos dois campos.' });
   } else if (draft.desiredAt.getTime() < now.getTime() - PAST_GRACE_MINUTES * 60_000) {
     errors.push({ field: 'desiredAt', message: 'Esse horário já passou. Escolha um horário futuro.' });
   } else if (isDepartureTooFarAhead(draft.desiredAt, now)) {
@@ -107,7 +107,8 @@ export function formatDistance(km: number): string {
  */
 export function formatTimeDifference(minutes: number): string {
   const abs = Math.abs(Math.round(minutes));
-  if (abs === 0) return 'no horário';
+  // Vai sozinho numa etiqueta: começa com maiúscula (regras de escrita do manual).
+  if (abs === 0) return 'No horário';
 
   const h = Math.floor(abs / 60);
   const m = abs % 60;

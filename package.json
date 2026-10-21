@@ -14,6 +14,7 @@
     "fn:deploy": "supabase functions deploy auth-login --no-verify-jwt"
   },
   "dependencies": {
+    "@expo-google-fonts/inter": "^0.4.2",
     "@expo/metro-runtime": "~57.0.16",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "9.1.0",
@@ -21,6 +22,7 @@
     "expo": "^57.0.24",
     "expo-constants": "~57.0.19",
     "expo-file-system": "~57.0.7",
+    "expo-font": "~57.0.4",
     "expo-image-picker": "~57.0.19",
     "expo-linking": "~57.0.10",
     "expo-router": "~57.0.22",

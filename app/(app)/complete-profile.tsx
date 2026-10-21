@@ -2,8 +2,7 @@ import React from 'react';
 import { router } from 'expo-router';
 
 import { AuthScreen } from '@/components/AuthScreen';
-import { SplashGate } from '@/components/SplashGate';
-import { ErrorState } from '@/components/StateViews';
+import { ErrorState, FormSkeleton } from '@/components/StateViews';
 import { useProfile } from '@/profile/ProfileContext';
 import { ProfileForm } from '@/profile/ProfileForm';
 
@@ -16,7 +15,13 @@ import { ProfileForm } from '@/profile/ProfileForm';
 export default function CompleteProfileScreen() {
   const { profile, loading, error, reload } = useProfile();
 
-  if (loading) return <SplashGate />;
+  if (loading) {
+    return (
+      <AuthScreen title="Completar perfil">
+        <FormSkeleton fields={4} />
+      </AuthScreen>
+    );
+  }
 
   if (error || !profile) {
     return (

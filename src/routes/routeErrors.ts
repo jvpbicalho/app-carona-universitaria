@@ -19,13 +19,13 @@ const BY_HINT: Record<string, string> = {
   route_not_editable: 'Esta carona já foi cancelada ou concluída e não pode mais ser alterada.',
   route_already_departed: 'Esta carona já partiu e não pode mais ser alterada.',
   cancel_with_changes: 'Cancele ou edite a carona, não os dois ao mesmo tempo.',
-  status_transition_forbidden: 'Essa mudança de situação da carona não é permitida.',
+  status_transition_forbidden: 'Esta carona não pode mais mudar de situação. Volte ao detalhe para ver como ela está.',
   seats_taken_managed: 'As vagas ocupadas mudam só quando uma solicitação é confirmada.',
 };
 
 export function describeRouteError(
   error: RouteDbError,
-  fallback = 'Não foi possível publicar a carona. Tente novamente.',
+  fallback = 'Não foi possível publicar a carona. Tente de novo.',
 ): string {
   const hint = error.hint ?? '';
   if (BY_HINT[hint]) return BY_HINT[hint];

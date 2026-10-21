@@ -43,18 +43,22 @@ export async function searchAddress(
     // Busca cancelada porque o usuário continuou digitando não é falha:
     // propaga para quem chamou distinguir e simplesmente ignorar.
     if (error instanceof Error && error.name === 'AbortError') throw error;
-    throw new GeocodeError('Sem conexão. Verifique sua internet.');
+    throw new GeocodeError('Sem conexão. Verifique sua internet e tente de novo.');
   }
 
-  let payload: { results?: GeocodeSuggestion[]; message?: string };
+  let payload: { results?: GeocodeSuggestion[]; error?: string; message?: string };
   try {
     payload = await response.json();
   } catch {
-    throw new GeocodeError('A busca de endereços respondeu de forma inesperada.');
+    throw new GeocodeError('A busca de endereços não respondeu como esperado. Tente de novo em instantes.');
   }
 
   if (!response.ok) {
-    throw new GeocodeError(payload.message ?? 'Não foi possível buscar endereços agora.');
+    // A mensagem do servidor só vai para a tela quando foi escrita para o
+    // usuário. `invalid_body` ("Corpo da requisição inválido") é falha do
+    // app, não de quem digita — vira a mensagem genérica.
+    const userFacing = payload.error !== 'invalid_body' ? payload.message : undefined;
+    throw new GeocodeError(userFacing ?? 'Não foi possível buscar endereços agora. Tente de novo em instantes.');
   }
 
   return payload.results ?? [];

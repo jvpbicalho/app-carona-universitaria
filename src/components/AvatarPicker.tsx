@@ -1,29 +1,51 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
-import { colors, spacing, typography } from '@/theme/tokens';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { FieldMessage } from '@/components/FieldParts';
+import { TextLink } from '@/components/TextLink';
+import { colors, sizes, spacing, typography } from '@/theme/tokens';
 
 type Props = {
   /** URI local recém-escolhida, ou URL pública da foto já salva. */
   uri: string | null;
   onPick: (localUri: string) => void;
+  /** Nome da pessoa, para mostrar as iniciais enquanto não há foto. */
+  name?: string | null;
   error?: string | null;
   uploading?: boolean;
   size?: number;
 };
 
+/** "Maria Silva Souza" → "MS". Vazio quando não há nome. */
+export function initialsOf(name?: string | null): string {
+  const parts = (name ?? '').trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '';
+  const first = parts[0].charAt(0);
+  const last = parts.length > 1 ? parts[parts.length - 1].charAt(0) : '';
+  return `${first}${last}`.toUpperCase();
+}
+
 /**
  * Foto do perfil (campo obrigatório da História 1).
  *
- * Oferece câmera e galeria: quem ainda não tem foto vai tirar uma na hora, e
- * quem já tem prefere escolher. Corta em 1:1 na própria escolha para a foto
- * chegar já no formato em que é exibida.
+ * No celular oferece câmera e galeria: quem ainda não tem foto vai tirar uma
+ * na hora, e quem já tem prefere escolher. Na web, abre direto o seletor de
+ * arquivo — computador não tem "tirar foto", e o diálogo do sistema
+ * (Alert.alert) que fazia essa pergunta não aparece no navegador.
+ *
+ * Corta em 1:1 na própria escolha para a foto chegar já no formato em que é
+ * exibida.
  */
-export function AvatarPicker({ uri, onPick, error, uploading = false, size = 112 }: Props) {
+export function AvatarPicker({ uri, onPick, name, error, uploading = false, size = sizes.avatarPicker }: Props) {
   const [busy, setBusy] = useState(false);
+  const [choosing, setChoosing] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
 
   async function launch(source: 'camera' | 'library') {
+    setChoosing(false);
+    setProblem(null);
     setBusy(true);
     try {
       const permission =
@@ -32,11 +54,10 @@ export function AvatarPicker({ uri, onPick, error, uploading = false, size = 112
           : await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       if (!permission.granted) {
-        Alert.alert(
-          'Permissão necessária',
+        setProblem(
           source === 'camera'
-            ? 'Autorize o acesso à câmera nas configurações do aparelho para tirar a foto.'
-            : 'Autorize o acesso às fotos nas configurações do aparelho para escolher a imagem.',
+            ? 'Sem acesso à câmera. Autorize nas configurações do aparelho ou escolha uma foto da galeria.'
+            : 'Sem acesso às fotos. Autorize nas configurações do aparelho para escolher a imagem.',
         );
         return;
       }
@@ -59,21 +80,23 @@ export function AvatarPicker({ uri, onPick, error, uploading = false, size = 112
         onPick(result.assets[0].uri);
       }
     } catch {
-      Alert.alert('Erro', 'Não foi possível abrir a seleção de foto. Tente novamente.');
+      setProblem('Não foi possível abrir a seleção de foto. Tente de novo.');
     } finally {
       setBusy(false);
     }
   }
 
   function choose() {
-    Alert.alert('Foto do perfil', 'De onde você quer escolher?', [
-      { text: 'Tirar foto', onPress: () => void launch('camera') },
-      { text: 'Escolher da galeria', onPress: () => void launch('library') },
-      { text: 'Cancelar', style: 'cancel' },
-    ]);
+    if (Platform.OS === 'web') {
+      void launch('library');
+      return;
+    }
+    setChoosing(true);
   }
 
   const showSpinner = busy || uploading;
+  const initials = initialsOf(name);
+  const actionLabel = uri ? 'Trocar foto' : 'Adicionar foto';
 
   return (
     <View style={styles.wrapper}>
@@ -90,27 +113,39 @@ export function AvatarPicker({ uri, onPick, error, uploading = false, size = 112
         ]}
       >
         {showSpinner ? (
-          <ActivityIndicator color={colors.primary} />
+          <ActivityIndicator color={colors.text} />
         ) : uri ? (
           <Image
             source={{ uri }}
             style={{ width: size, height: size, borderRadius: size / 2 }}
             accessibilityIgnoresInvertColors
           />
+        ) : initials ? (
+          <Text style={typography.sectionTitle}>{initials}</Text>
         ) : (
-          <Text style={styles.placeholder}>foto</Text>
+          <Text style={typography.caption}>Sem foto</Text>
         )}
       </Pressable>
 
-      <Pressable onPress={choose} disabled={showSpinner} accessibilityRole="button" hitSlop={8}>
-        <Text style={styles.action}>{uri ? 'Trocar foto' : 'Adicionar foto'}</Text>
-      </Pressable>
+      <View style={styles.action}>
+        <TextLink label={actionLabel} onPress={choose} disabled={showSpinner} />
+      </View>
 
-      {error ? (
-        <Text style={styles.error} accessibilityLiveRegion="polite">
-          {error}
-        </Text>
-      ) : null}
+      <View style={styles.message}>
+        <FieldMessage error={problem ?? error} />
+      </View>
+
+      <ConfirmDialog
+        visible={choosing}
+        title="Foto do perfil"
+        message="De onde você quer escolher?"
+        actions={[
+          { label: 'Tirar foto', onPress: () => void launch('camera') },
+          { label: 'Escolher da galeria', onPress: () => void launch('library') },
+        ]}
+        dismissLabel="Cancelar"
+        onDismiss={() => setChoosing(false)}
+      />
     </View>
   );
 }
@@ -121,19 +156,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
     overflow: 'hidden',
   },
   circlePressed: { opacity: 0.8 },
-  circleError: { borderColor: colors.danger, borderWidth: 2 },
-  placeholder: { ...typography.helper, textTransform: 'lowercase' },
-  action: {
-    ...typography.helper,
-    color: colors.primary,
-    fontWeight: '700',
-    marginTop: spacing.sm,
-    paddingVertical: spacing.xs,
-  },
-  error: { ...typography.helper, color: colors.danger, marginTop: spacing.xs, textAlign: 'center' },
+  circleError: { borderColor: colors.danger, borderWidth: sizes.borderStrong },
+  action: { marginTop: spacing.sm },
+  message: { alignSelf: 'stretch', alignItems: 'center' },
 });

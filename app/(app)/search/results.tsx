@@ -3,7 +3,11 @@ import { FlatList, Image, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 
+import { screenLayout } from '@/components/AuthScreen';
+import { initialsOf } from '@/components/AvatarPicker';
 import { PrimaryButton } from '@/components/PrimaryButton';
+import { RouteLegs } from '@/components/RouteLegs';
+import { goBack, ScreenHeader } from '@/components/ScreenHeader';
 import { EmptyState, ErrorState, SkeletonList } from '@/components/StateViews';
 import { avatarPublicUrl } from '@/profile/profileApi';
 import { formatDeparture, type GeoPoint } from '@/routes/routeValidation';
@@ -16,7 +20,7 @@ import {
   widenedWindowMinutes,
   type SearchLimits,
 } from '@/search/searchValidation';
-import { colors, radius, spacing, typography } from '@/theme/tokens';
+import { colors, radius, sizes, spacing, typography } from '@/theme/tokens';
 
 type Params = {
   originLabel?: string;
@@ -98,12 +102,15 @@ export default function SearchResultsScreen() {
 
   if (invalid) {
     return (
-      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-        <EmptyState
-          message="Não entendemos essa busca. Informe origem, destino e horário de novo."
-          actionLabel="Nova busca"
-          onAction={() => router.replace('/search')}
-        />
+      <SafeAreaView style={screenLayout.safe} edges={['top', 'bottom']}>
+        <View style={[screenLayout.column, styles.header]}>
+          <ScreenHeader fallback="/search" />
+          <EmptyState
+            message="Não entendemos essa busca. Informe origem, destino e horário de novo."
+            actionLabel="Fazer nova busca"
+            onAction={() => router.replace('/search')}
+          />
+        </View>
       </SafeAreaView>
     );
   }
@@ -112,48 +119,61 @@ export default function SearchResultsScreen() {
   const countLabel = `${rides.length} ${rides.length === 1 ? 'carona' : 'caronas'}`;
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <View style={styles.header}>
-        <Text style={typography.title}>{loading ? 'Buscando…' : countLabel}</Text>
-        <Text style={[typography.subtitle, styles.subtitle]} numberOfLines={2}>
-          {origin.label} → {destination.label}
-        </Text>
-        <Text style={typography.helper}>
-          {formatDeparture(desiredAt)}
-          {windowMinutes !== null ? ` · de ${formatWindowRange(desiredAt, windowMinutes)}` : ''}
-          {limits ? ` · até ${String(limits.radiusKm).replace('.', ',')} km` : ''}
-        </Text>
-        {!loading && rides.length > 1 ? (
-          <Text style={styles.orderHint}>ordenadas por relevância: mais perto e mais no horário primeiro</Text>
-        ) : null}
-      </View>
+    <SafeAreaView style={screenLayout.safe} edges={['top', 'bottom']}>
+      <View style={[screenLayout.column, screenLayout.fill]}>
+        <View style={styles.header}>
+          <ScreenHeader fallback="/search" />
+          <Text style={typography.screenTitle} accessibilityRole="header">
+            {loading ? 'Buscando caronas' : countLabel}
+          </Text>
+          <Text style={[typography.bodySecondary, styles.subtitle]} numberOfLines={2}>
+            De {origin.label} para {destination.label}
+          </Text>
+          <Text style={typography.caption}>
+            {formatDeparture(desiredAt)}
+            {windowMinutes !== null ? ` · de ${formatWindowRange(desiredAt, windowMinutes)}` : ''}
+            {limits ? ` · até ${String(limits.radiusKm).replace('.', ',')} km` : ''}
+          </Text>
+          {!loading && rides.length > 1 ? (
+            <Text style={styles.orderHint}>Mais perto e mais no horário aparecem primeiro.</Text>
+          ) : null}
+        </View>
 
-      {loading ? (
-        <View style={styles.body}>
-          <SkeletonList count={3} />
-        </View>
-      ) : error ? (
-        <ErrorState message={error} onRetry={() => void run(windowMinutes)} />
-      ) : rides.length === 0 ? (
-        // Wireframe 4.6: estado vazio sempre com saída.
-        <View>
-          <EmptyState
-            message="Nenhuma carona encontrada nesse horário."
-            actionLabel={widerWindow ? `Ampliar para ${formatWindowRange(desiredAt, widerWindow)}` : undefined}
-            onAction={widerWindow ? () => void run(widerWindow) : undefined}
-          />
-          <View style={styles.secondaryAction}>
-            <PrimaryButton label="Alterar busca" variant="ghost" onPress={() => router.back()} />
+        {loading ? (
+          <View style={styles.body}>
+            <SkeletonList count={3} />
           </View>
-        </View>
-      ) : (
-        <FlatList
-          data={rides}
-          keyExtractor={(item) => item.routeId}
-          contentContainerStyle={styles.body}
-          renderItem={({ item }) => <RideCard ride={item} />}
-        />
-      )}
+        ) : error ? (
+          <ErrorState message={error} onRetry={() => void run(windowMinutes)} />
+        ) : rides.length === 0 ? (
+          // Wireframe 4.6: estado vazio sempre com saída.
+          <View style={styles.body}>
+            <EmptyState
+              message={
+                widerWindow
+                  ? 'Nenhuma carona encontrada nesse horário. Amplie o intervalo ou altere a busca.'
+                  : 'Nenhuma carona encontrada, mesmo com o intervalo máximo. Tente outro horário ou outro trajeto.'
+              }
+              actionLabel={widerWindow ? `Ampliar para ${formatWindowRange(desiredAt, widerWindow)}` : undefined}
+              onAction={widerWindow ? () => void run(widerWindow) : undefined}
+            />
+            <View style={styles.secondaryAction}>
+              <PrimaryButton
+                label="Alterar busca"
+                variant={widerWindow ? 'outline' : 'primary'}
+                onPress={() => goBack('/search')}
+              />
+            </View>
+          </View>
+        ) : (
+          <FlatList
+            data={rides}
+            keyExtractor={(item) => item.routeId}
+            contentContainerStyle={styles.body}
+            renderItem={({ item }) => <RideCard ride={item} />}
+          />
+        )}
+      </View>
     </SafeAreaView>
   );
 }
@@ -169,34 +189,34 @@ function RideCard({ ride }: { ride: RideResult }) {
         <Text style={styles.badge}>{formatTimeDifference(ride.timeDifferenceMinutes)}</Text>
       </View>
 
-      <Text style={styles.leg} numberOfLines={1}>
-        {ride.originLabel}
-      </Text>
-      <Text style={styles.distance}>
-        {ride.originDistanceKm < 0.05
-          ? 'sai do mesmo ponto que você'
-          : `sai a ${formatDistance(ride.originDistanceKm)} de onde você sai`}
-      </Text>
-      <Text style={styles.leg} numberOfLines={1}>
-        {ride.destinationLabel}
-      </Text>
-      <Text style={styles.distance}>
-        {ride.destinationDistanceKm < 0.05
-          ? 'chega ao seu destino'
-          : `chega a ${formatDistance(ride.destinationDistanceKm)} do seu destino`}
-      </Text>
+      <RouteLegs
+        origin={ride.originLabel}
+        destination={ride.destinationLabel}
+        originDetail={
+          ride.originDistanceKm < 0.05
+            ? 'Sai do mesmo ponto que você'
+            : `Sai a ${formatDistance(ride.originDistanceKm)} de onde você sai`
+        }
+        destinationDetail={
+          ride.destinationDistanceKm < 0.05
+            ? 'Chega ao seu destino'
+            : `Chega a ${formatDistance(ride.destinationDistanceKm)} do seu destino`
+        }
+      />
 
       <View style={styles.footer}>
         {photo ? (
           <Image source={{ uri: photo }} style={styles.avatar} accessibilityIgnoresInvertColors />
         ) : (
-          <View style={[styles.avatar, styles.avatarEmpty]} />
+          <View style={[styles.avatar, styles.avatarEmpty]}>
+            <Text style={typography.captionStrong}>{initialsOf(ride.driverName)}</Text>
+          </View>
         )}
         <View style={styles.driver}>
           <Text style={typography.body} numberOfLines={1}>
             {ride.driverName ?? 'Motorista'}
           </Text>
-          <Text style={typography.helper} numberOfLines={1}>
+          <Text style={typography.caption} numberOfLines={1}>
             {[ride.vehicleMakeModel, ride.vehicleColor?.toLowerCase()].filter(Boolean).join(' · ')}
           </Text>
         </View>
@@ -209,15 +229,14 @@ function RideCard({ ride }: { ride: RideResult }) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
   header: { paddingHorizontal: spacing.lg, paddingTop: spacing.lg, paddingBottom: spacing.md },
   subtitle: { marginTop: spacing.xs },
-  orderHint: { ...typography.helper, marginTop: spacing.sm, fontStyle: 'italic' },
+  orderHint: { ...typography.caption, marginTop: spacing.sm },
   body: { paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
-  secondaryAction: { paddingHorizontal: spacing.lg },
+  secondaryAction: { marginTop: spacing.md },
   card: {
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderWidth: sizes.hairline,
+    borderColor: colors.divider,
     borderRadius: radius.md,
     padding: spacing.md,
     marginBottom: spacing.sm,
@@ -228,28 +247,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.sm,
   },
-  departure: { ...typography.label, color: colors.primary },
+  departure: { ...typography.sectionTitle },
   badge: {
-    ...typography.helper,
+    ...typography.caption,
     backgroundColor: colors.surface,
     paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
+    paddingVertical: spacing.xxs,
     borderRadius: radius.sm,
     overflow: 'hidden',
   },
-  leg: { ...typography.body },
-  distance: { ...typography.helper, marginBottom: spacing.xs },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: spacing.sm,
+    marginTop: spacing.md,
     paddingTop: spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: colors.surface,
+    borderTopWidth: sizes.hairline,
+    borderTopColor: colors.divider,
   },
-  avatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.surface },
-  avatarEmpty: { borderWidth: 1, borderColor: colors.border },
+  avatar: {
+    width: sizes.avatarSm,
+    height: sizes.avatarSm,
+    borderRadius: sizes.avatarSm / 2,
+    backgroundColor: colors.surface,
+  },
+  avatarEmpty: { alignItems: 'center', justifyContent: 'center' },
   driver: { flex: 1, marginLeft: spacing.sm },
-  seats: { ...typography.label, color: colors.success },
-  notes: { ...typography.helper, marginTop: spacing.sm, fontStyle: 'italic' },
+  seats: { ...typography.bodyStrong },
+  notes: { ...typography.caption, marginTop: spacing.sm },
 });

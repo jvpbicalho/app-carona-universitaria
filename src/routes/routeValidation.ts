@@ -104,7 +104,7 @@ export function validateDeparture(
     return [{ field: 'departureAt', message: 'Escolha a data e o horário de saída.' }];
   }
   if (Number.isNaN(departureAt.getTime())) {
-    return [{ field: 'departureAt', message: 'Data ou horário inválidos.' }];
+    return [{ field: 'departureAt', message: 'Data ou horário inválidos. Escolha de novo nos dois campos.' }];
   }
   if (isDepartureInPast(departureAt, now)) {
     return [{ field: 'departureAt', message: 'O horário de saída não pode ser no passado.' }];

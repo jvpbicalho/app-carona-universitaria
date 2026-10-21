@@ -3,14 +3,18 @@ import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 
+import { screenLayout } from '@/components/AuthScreen';
+import { initialsOf } from '@/components/AvatarPicker';
 import { Banner } from '@/components/Banner';
 import { PrimaryButton } from '@/components/PrimaryButton';
+import { RouteLegs } from '@/components/RouteLegs';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { EmptyState, ErrorState, SkeletonBlock } from '@/components/StateViews';
 import { useProfile } from '@/profile/ProfileContext';
 import { avatarPublicUrl } from '@/profile/profileApi';
 import { canModifyRoute, formatDeparture } from '@/routes/routeValidation';
 import { useRouteDetail } from '@/routes/useRouteDetail';
-import { colors, radius, spacing, typography } from '@/theme/tokens';
+import { colors, radius, sizes, spacing, typography } from '@/theme/tokens';
 
 /**
  * Wireframe 3.4 — "Detalhe da carona" (lado motorista).
@@ -27,9 +31,10 @@ export default function RouteDetailScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-        <View style={styles.content}>
-          <SkeletonBlock height={20} width="50%" />
+      <SafeAreaView style={screenLayout.safe} edges={['top', 'bottom']}>
+        <View style={[screenLayout.column, styles.content]}>
+          <ScreenHeader fallback="/routes" />
+          <SkeletonBlock height={34} width="60%" />
           <SkeletonBlock height={18} width="85%" style={{ marginTop: spacing.md }} />
           <SkeletonBlock height={18} width="70%" style={{ marginTop: spacing.sm }} />
           <SkeletonBlock height={72} style={{ marginTop: spacing.lg }} />
@@ -40,20 +45,25 @@ export default function RouteDetailScreen() {
 
   if (error) {
     return (
-      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-        <ErrorState message={error} onRetry={() => void reload()} />
+      <SafeAreaView style={screenLayout.safe} edges={['top', 'bottom']}>
+        <View style={[screenLayout.column, styles.content]}>
+          <ScreenHeader fallback="/routes" />
+          <ErrorState message={error} onRetry={() => void reload()} />
+        </View>
       </SafeAreaView>
     );
   }
 
   if (notFound || !route) {
     return (
-      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-        <EmptyState
-          message="Esta carona não existe ou você não tem acesso a ela."
-          actionLabel="Voltar para minhas caronas"
-          onAction={() => router.replace('/routes')}
-        />
+      <SafeAreaView style={screenLayout.safe} edges={['top', 'bottom']}>
+        <View style={[screenLayout.column, styles.content]}>
+          <EmptyState
+            message="Não encontramos esta carona. Ela pode ter sido removida, ou você não tem acesso a ela."
+            actionLabel="Ver minhas caronas"
+            onAction={() => router.replace('/routes')}
+          />
+        </View>
       </SafeAreaView>
     );
   }
@@ -63,14 +73,17 @@ export default function RouteDetailScreen() {
   const cancelled = route.status === 'cancelada';
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={typography.title}>Detalhe da carona</Text>
+    <SafeAreaView style={screenLayout.safe} edges={['top', 'bottom']}>
+      <ScrollView contentContainerStyle={[screenLayout.column, styles.content]} showsVerticalScrollIndicator={false}>
+        <ScreenHeader fallback="/routes" />
+        <Text style={[typography.screenTitle, styles.title]} accessibilityRole="header">
+          Detalhe da carona
+        </Text>
 
         {cancelled ? (
           <Banner
             tone="error"
-            message={`Carona cancelada${route.cancellationReason ? `. Motivo: ${route.cancellationReason}` : ''}`}
+            message={`Esta carona foi cancelada${route.cancellationReason ? `. Motivo: ${route.cancellationReason}` : '.'}`}
           />
         ) : !modifiable.ok ? (
           <Banner tone="warning" message={modifiable.message} />
@@ -78,9 +91,7 @@ export default function RouteDetailScreen() {
 
         <View style={styles.card}>
           <Text style={styles.departure}>{formatDeparture(route.departureAt)}</Text>
-          <Text style={styles.leg}>{route.originLabel}</Text>
-          <Text style={styles.arrow}>↓</Text>
-          <Text style={styles.leg}>{route.destinationLabel}</Text>
+          <RouteLegs origin={route.originLabel} destination={route.destinationLabel} numberOfLines={3} />
           <Text style={styles.seats}>
             {route.seatsTaken} de {route.seatsTotal}{' '}
             {route.seatsTotal === 1 ? 'vaga ocupada' : 'vagas ocupadas'}
@@ -103,12 +114,14 @@ export default function RouteDetailScreen() {
                 {photo ? (
                   <Image source={{ uri: photo }} style={styles.avatar} accessibilityIgnoresInvertColors />
                 ) : (
-                  <View style={[styles.avatar, styles.avatarEmpty]} />
+                  <View style={[styles.avatar, styles.avatarEmpty]}>
+                    <Text style={typography.captionStrong}>{initialsOf(passenger.fullName)}</Text>
+                  </View>
                 )}
                 <View style={styles.passengerBody}>
                   <Text style={typography.body}>{passenger.fullName ?? 'Passageiro'}</Text>
                   {passenger.courseName ? (
-                    <Text style={typography.helper}>{passenger.courseName}</Text>
+                    <Text style={typography.caption}>{passenger.courseName}</Text>
                   ) : null}
                 </View>
               </View>
@@ -122,13 +135,15 @@ export default function RouteDetailScreen() {
           <View style={styles.actions}>
             <PrimaryButton
               label="Editar carona"
-              variant="ghost"
+              variant="outline"
               onPress={() => router.push({ pathname: '/routes/[id]/edit', params: { id: route.id } })}
             />
             <View style={styles.spacer} />
             <PrimaryButton
               label="Cancelar carona"
-              variant="danger"
+              // Contorno: aqui só abre a confirmação. O vermelho cheio fica
+              // para a tela que de fato cancela.
+              variant="dangerOutline"
               onPress={() => router.push({ pathname: '/routes/[id]/cancel', params: { id: route.id } })}
             />
           </View>
@@ -139,31 +154,32 @@ export default function RouteDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
   content: { paddingHorizontal: spacing.lg, paddingTop: spacing.lg, paddingBottom: spacing.xl },
+  title: { marginBottom: spacing.md },
   card: {
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: colors.surface,
     borderRadius: radius.md,
     padding: spacing.md,
-    marginTop: spacing.md,
   },
-  departure: { ...typography.label, color: colors.primary, marginBottom: spacing.sm },
-  leg: { ...typography.body },
-  arrow: { ...typography.helper, marginVertical: 2 },
-  seats: { ...typography.helper, marginTop: spacing.sm },
-  notes: { ...typography.helper, marginTop: spacing.sm, fontStyle: 'italic' },
-  sectionTitle: { ...typography.label, marginTop: spacing.lg, marginBottom: spacing.sm },
-  emptyPassengers: { ...typography.helper },
+  departure: { ...typography.sectionTitle, marginBottom: spacing.sm },
+  seats: { ...typography.caption, marginTop: spacing.sm },
+  notes: { ...typography.caption, marginTop: spacing.sm },
+  sectionTitle: { ...typography.sectionTitle, marginTop: spacing.lg, marginBottom: spacing.sm },
+  emptyPassengers: { ...typography.caption },
   passenger: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.surface,
+    borderBottomWidth: sizes.hairline,
+    borderBottomColor: colors.divider,
   },
-  avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surface },
-  avatarEmpty: { borderWidth: 1, borderColor: colors.border },
+  avatar: {
+    width: sizes.avatarSm,
+    height: sizes.avatarSm,
+    borderRadius: sizes.avatarSm / 2,
+    backgroundColor: colors.surface,
+  },
+  avatarEmpty: { alignItems: 'center', justifyContent: 'center' },
   passengerBody: { marginLeft: spacing.md, flex: 1 },
   actions: { marginTop: spacing.xl },
   spacer: { height: spacing.sm },

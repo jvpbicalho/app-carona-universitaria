@@ -1,6 +1,10 @@
-# 🚗 Carona Universitária
+# UniRota
 
 Sistema cooperativo de caronas intermunicipais para a comunidade acadêmica.
+**UniRota** é o nome do app; o repositório, o projeto Supabase e os
+identificadores técnicos (slug, scheme `caronauni://`, pacote) mantêm o nome
+original `app-carona-universitaria`.
+
 Motoristas (alunos ou professores) cadastram rotas e horários; passageiros
 buscam e solicitam vagas; a avaliação é mútua e o custo do combustível é
 dividido de forma estimada.
@@ -10,7 +14,8 @@ Computação (Prof. Mário Farah).
 
 > **Status:** Autenticação (EP01), perfil e veículo (EP02), rotas (EP03:
 > publicar, editar e cancelar) e a busca de caronas (EP04) já estão
-> implementados — ver a [documentação](#documentação).
+> implementados, com o visual do manual de identidade — ver a
+> [documentação](#documentação).
 
 ---
 
@@ -147,6 +152,11 @@ npm test
 npm run typecheck
 ```
 
+Dois testes cuidam do visual: `themeUsage` barra cor, fonte ou tamanho de
+texto escritos fora de `src/theme` (e `Alert.alert`, que não funciona na web),
+e `themeContrast` confere o contraste mínimo do manual (4,5:1). Veja
+[Identidade visual](docs/identidade-visual.md).
+
 Os testes de lógica que mora no banco ficam em `supabase/tests/*.test.sql`.
 Rode o arquivo inteiro no **SQL Editor** do Supabase (ou com `psql`): ele cria
 os próprios dados, confere cada regra e desfaz tudo no fim (`ROLLBACK`). Sem
@@ -182,9 +192,10 @@ src/
   routes/                       API e regras (horário, limite de vagas)
   search/                       API e regras da busca de caronas
   geocode/                      cliente da busca de endereço
-  components/                   campos, selects, estados vazio/erro/carregando
+  components/                   campos, botões, diálogo, ícones, estados vazio/erro/carregando
   lib/                          client Supabase e listas de referência
-  theme/tokens.ts               cores, espaçamentos, tipografia
+  theme/palette.ts              cores do manual de identidade e seus papéis
+  theme/tokens.ts               fontes (Inter 400/500), tipografia, espaçamentos — o único lugar com visual
 supabase/
   config.toml                   config do CLI + settings de Auth versionadas
   migrations/                   schema versionado (já aplicado no projeto)
@@ -229,6 +240,8 @@ npx supabase functions deploy geocode
   a passageiros confirmados e o contrato que EP05 e EP06 vão usar.
 - [Buscar caronas](docs/busca-caronas.md) — fórmula de relevância, limites em
   um lugar só, desempenho medido e o ponto de extensão das vagas.
+- [Identidade visual](docs/identidade-visual.md) — como o manual do UniRota
+  vira código: tema único, Inter, cores, componentes, desvios pendentes de aval.
 - [Wireframes](docs/wireframes/) — esboços de referência de todos os épicos.
 - Backlog completo, Kanban e cronograma vivem no Notion (workspace `GAP 2026`).
 

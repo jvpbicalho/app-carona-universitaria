@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { FieldMessage, fieldStyles } from '@/components/FieldParts';
+import { Icon } from '@/components/Icon';
 import { GeocodeError, searchAddress, type GeocodeSuggestion } from '@/geocode/geocodeApi';
 import type { GeoPoint } from '@/routes/routeValidation';
-import { colors, radius, spacing, typography } from '@/theme/tokens';
+import { colors, radius, sizes, spacing, typography } from '@/theme/tokens';
 
 type Props = {
   label: string;
@@ -28,7 +30,7 @@ const MIN_CHARS = 3;
  */
 export function AddressSearchField({
   label,
-  placeholder = 'buscar endereço',
+  placeholder = 'Buscar endereço',
   value,
   onChange,
   error,
@@ -68,7 +70,7 @@ export function AddressSearchField({
       if (err instanceof Error && err.name === 'AbortError') return; // digitou mais
       setSuggestions([]);
       setSearchError(
-        err instanceof GeocodeError ? err.message : 'Não foi possível buscar endereços agora.',
+        err instanceof GeocodeError ? err.message : 'Não foi possível buscar endereços agora. Tente de novo em instantes.',
       );
     } finally {
       if (!controller.signal.aborted) setLoading(false);
@@ -125,15 +127,15 @@ export function AddressSearchField({
     focused && !loading && !value && suggestions.length === 0 && query.trim().length >= MIN_CHARS && !searchError;
 
   return (
-    <View style={styles.wrapper}>
-      <Text style={styles.label}>{label}</Text>
+    <View style={fieldStyles.wrapper}>
+      <Text style={fieldStyles.label}>{label}</Text>
 
       <View
         style={[
+          fieldStyles.box,
           styles.field,
-          focused && styles.fieldFocused,
-          Boolean(error) && styles.fieldError,
-          Boolean(value) && styles.fieldSelected,
+          focused && fieldStyles.boxFocused,
+          Boolean(error) && fieldStyles.boxError,
         ]}
       >
         <TextInput
@@ -143,18 +145,20 @@ export function AddressSearchField({
           // Atraso para o toque na sugestão registrar antes de a lista sumir.
           onBlur={() => setTimeout(() => setFocused(false), 150)}
           placeholder={placeholder}
-          placeholderTextColor={colors.textMuted}
-          style={styles.input}
+          placeholderTextColor={colors.textSecondary}
+          style={fieldStyles.input}
           autoCorrect={false}
           accessibilityLabel={label}
           accessibilityHint={error ?? helper}
         />
         {loading ? (
-          <ActivityIndicator size="small" color={colors.primary} />
+          <ActivityIndicator size="small" color={colors.text} />
         ) : value ? (
-          <Text style={styles.pin} accessibilityLabel="Endereço selecionado">
-            ⌖
-          </Text>
+          // Endereço escolhido da lista: marcado por ícone e por texto
+          // acessível, não por cor.
+          <View accessibilityLabel="Endereço selecionado">
+            <Icon name="check" size={sizes.icon} />
+          </View>
         ) : null}
       </View>
 
@@ -171,57 +175,28 @@ export function AddressSearchField({
                 pressed && styles.suggestionPressed,
               ]}
             >
-              <Text style={styles.suggestionLabel} numberOfLines={2}>
+              <Text style={typography.body} numberOfLines={2}>
                 {suggestion.label}
               </Text>
-              {suggestion.state ? (
-                <Text style={styles.suggestionMeta}>{suggestion.state}</Text>
-              ) : null}
+              {suggestion.state ? <Text style={typography.caption}>{suggestion.state}</Text> : null}
             </Pressable>
           ))}
         </View>
       ) : null}
 
-      {showEmpty ? (
-        <Text style={styles.helper}>Nenhum endereço encontrado. Tente incluir a cidade.</Text>
-      ) : null}
-
-      {searchError ? (
-        <Text style={styles.error} accessibilityLiveRegion="polite">
-          {searchError}
-        </Text>
-      ) : error ? (
-        <Text style={styles.error} accessibilityLiveRegion="polite">
-          {error}
-        </Text>
-      ) : helper && !showEmpty ? (
-        <Text style={styles.helper}>{helper}</Text>
-      ) : null}
+      <FieldMessage
+        error={searchError ?? error}
+        helper={showEmpty ? 'Nenhum endereço encontrado. Tente incluir o bairro ou a cidade.' : helper}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: { marginBottom: spacing.md },
-  label: { ...typography.label, marginBottom: spacing.xs },
-  field: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    backgroundColor: colors.background,
-    paddingHorizontal: spacing.md,
-    minHeight: 52,
-  },
-  fieldFocused: { borderColor: colors.borderFocused, borderWidth: 2 },
-  fieldError: { borderColor: colors.danger, borderWidth: 2 },
-  fieldSelected: { borderColor: colors.success },
-  input: { flex: 1, paddingVertical: 14, fontSize: 16, color: colors.text },
-  pin: { color: colors.success, fontSize: 18, fontWeight: '700' },
+  field: { flexDirection: 'row', alignItems: 'center' },
   suggestions: {
     marginTop: spacing.xs,
-    borderWidth: 1,
+    borderWidth: sizes.hairline,
     borderColor: colors.border,
     borderRadius: radius.md,
     backgroundColor: colors.background,
@@ -229,14 +204,10 @@ const styles = StyleSheet.create({
   },
   suggestion: {
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm + 4,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.surface,
+    paddingVertical: spacing.sm + spacing.xs,
+    borderBottomWidth: sizes.hairline,
+    borderBottomColor: colors.divider,
   },
   suggestionLast: { borderBottomWidth: 0 },
   suggestionPressed: { backgroundColor: colors.surface },
-  suggestionLabel: { ...typography.body },
-  suggestionMeta: { ...typography.helper, marginTop: 2 },
-  error: { ...typography.helper, color: colors.danger, marginTop: spacing.xs },
-  helper: { ...typography.helper, marginTop: spacing.xs },
 });

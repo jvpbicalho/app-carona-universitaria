@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthContext';
@@ -8,7 +8,8 @@ import { AuthScreen } from '@/components/AuthScreen';
 import { Banner } from '@/components/Banner';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { TextField } from '@/components/TextField';
-import { colors, spacing, typography } from '@/theme/tokens';
+import { TextLink } from '@/components/TextLink';
+import { spacing, typography } from '@/theme/tokens';
 
 /**
  * História 1 — Cadastro com e-mail institucional.
@@ -83,17 +84,12 @@ export default function SignUpScreen() {
   return (
     <AuthScreen
       title="Criar conta"
-      subtitle={`Use seu e-mail institucional (${domainHint}) para comprovar seu vínculo com a universidade.`}
+      subtitle={`O UniRota é só para a comunidade da universidade. Use seu e-mail institucional (${domainHint}) para comprovar o vínculo.`}
       footer={
-        <Pressable
-          onPress={() => router.replace('/sign-in')}
-          accessibilityRole="link"
-          disabled={submitting}
-        >
-          <Text style={styles.link}>
-            Já tem conta? <Text style={styles.linkStrong}>Entrar</Text>
-          </Text>
-        </Pressable>
+        <View style={styles.footer}>
+          <Text style={typography.bodySecondary}>Já tem conta?</Text>
+          <TextLink label="Entrar" role="link" onPress={() => router.replace('/sign-in')} disabled={submitting} />
+        </View>
       }
     >
       {formError ? <Banner tone="error" message={formError} /> : null}
@@ -120,7 +116,7 @@ export default function SignUpScreen() {
         }}
         onBlur={handleEmailBlur}
         error={fieldErrors.email}
-        helper={`Somente ${domainHint}`}
+        helper={`Somente endereços ${domainHint}`}
         autoCapitalize="none"
         autoCorrect={false}
         keyboardType="email-address"
@@ -163,7 +159,6 @@ export default function SignUpScreen() {
 
 const styles = StyleSheet.create({
   action: { marginTop: spacing.sm },
-  disclaimer: { ...typography.helper, marginTop: spacing.md },
-  link: { ...typography.body, textAlign: 'center', color: colors.textMuted },
-  linkStrong: { color: colors.primary, fontWeight: '700' },
+  disclaimer: { ...typography.caption, marginTop: spacing.md },
+  footer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xs },
 });

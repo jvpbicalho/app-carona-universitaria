@@ -1,14 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 
 import { AddressSearchField } from '@/components/AddressSearchField';
 import { AuthScreen } from '@/components/AuthScreen';
 import { Banner } from '@/components/Banner';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { DateTimeError } from '@/components/DateTimeError';
 import { DateTimeField } from '@/components/DateTimeField';
 import { PrimaryButton } from '@/components/PrimaryButton';
-import { SplashGate } from '@/components/SplashGate';
-import { ErrorState } from '@/components/StateViews';
+import { ErrorState, FormSkeleton } from '@/components/StateViews';
 import type { FieldError } from '@/profile/profileValidation';
 import { describeRouteError, updateRoute } from '@/routes/routeApi';
 import {
@@ -19,7 +20,7 @@ import {
   type GeoPoint,
 } from '@/routes/routeValidation';
 import { affectedPassengersText, useRouteDetail } from '@/routes/useRouteDetail';
-import { colors, spacing, typography } from '@/theme/tokens';
+import { spacing } from '@/theme/tokens';
 
 function errorFor(errors: FieldError[], field: string): string | null {
   return errors.find((error) => error.field === field)?.message ?? null;
@@ -48,6 +49,7 @@ export default function EditRouteScreen() {
   const [errors, setErrors] = useState<FieldError[]>([]);
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
   // Pré-preenche uma vez. O hook recarrega a rota ao ganhar foco, e isso não
   // pode apagar o que o motorista já digitou.
@@ -71,6 +73,7 @@ export default function EditRouteScreen() {
 
   async function save() {
     if (!route) return;
+    setConfirming(false);
     setSaving(true);
     try {
       await updateRoute(route.id, { origin, destination, departureAt });
@@ -79,7 +82,7 @@ export default function EditRouteScreen() {
       setFormError(
         describeRouteError(
           err as { message?: string; hint?: string | null },
-          'Não foi possível salvar a alteração. Tente novamente.',
+          'Não foi possível salvar a alteração. Tente de novo.',
         ),
       );
     } finally {
@@ -106,18 +109,22 @@ export default function EditRouteScreen() {
     }
 
     // Com gente confirmada, a mudança sai do controle do motorista assim que
-    // salva: o aviso é imediato. Vale uma confirmação explícita.
-    Alert.alert('Salvar alteração?', affectedPassengersText(passengers.length, 'da mudança'), [
-      { text: 'Voltar', style: 'cancel' },
-      { text: 'Salvar e avisar', onPress: () => void save() },
-    ]);
+    // salva: o aviso é imediato. Vale uma confirmação explícita — num diálogo
+    // próprio, porque o do sistema não aparece na web.
+    setConfirming(true);
   }
 
-  if (loading) return <SplashGate />;
+  if (loading) {
+    return (
+      <AuthScreen title="Editar carona" back backFallback="/routes">
+        <FormSkeleton fields={3} />
+      </AuthScreen>
+    );
+  }
 
   if (error) {
     return (
-      <AuthScreen title="Editar carona">
+      <AuthScreen title="Editar carona" back backFallback="/routes">
         <ErrorState message={error} onRetry={() => void reload()} />
       </AuthScreen>
     );
@@ -125,9 +132,12 @@ export default function EditRouteScreen() {
 
   if (notFound || !route) {
     return (
-      <AuthScreen title="Editar carona">
-        <Banner tone="error" message="Esta carona não existe ou você não tem acesso a ela." />
-        <PrimaryButton label="Voltar" variant="ghost" onPress={() => router.back()} />
+      <AuthScreen title="Editar carona" back backFallback="/routes">
+        <Banner
+          tone="error"
+          message="Não encontramos esta carona. Ela pode ter sido removida, ou você não tem acesso a ela."
+        />
+        <PrimaryButton label="Ver minhas caronas" variant="outline" onPress={() => router.replace('/routes')} />
       </AuthScreen>
     );
   }
@@ -135,9 +145,9 @@ export default function EditRouteScreen() {
   const modifiable = canModifyRoute(route);
   if (!modifiable.ok) {
     return (
-      <AuthScreen title="Editar carona">
+      <AuthScreen title="Editar carona" back backFallback="/routes">
         <Banner tone="warning" message={modifiable.message} />
-        <PrimaryButton label="Voltar" variant="ghost" onPress={() => router.back()} />
+        <PrimaryButton label="Voltar ao detalhe" variant="outline" onPress={() => router.back()} />
       </AuthScreen>
     );
   }
@@ -145,7 +155,12 @@ export default function EditRouteScreen() {
   const bannerMessage = formError ?? errorFor(errors, FORM_FIELD);
 
   return (
-    <AuthScreen title="Editar carona" subtitle={affectedPassengersText(passengers.length, 'da mudança')}>
+    <AuthScreen
+      title="Editar carona"
+      subtitle={affectedPassengersText(passengers.length, 'da mudança')}
+      back
+      backFallback="/routes"
+    >
       {bannerMessage ? <Banner tone="error" message={bannerMessage} /> : null}
 
       <AddressSearchField
@@ -193,15 +208,19 @@ export default function EditRouteScreen() {
         />
       </View>
 
-      {errorFor(errors, 'departureAt') ? (
-        <Text style={styles.dateError} accessibilityLiveRegion="polite">
-          {errorFor(errors, 'departureAt')}
-        </Text>
-      ) : null}
+      <DateTimeError message={errorFor(errors, 'departureAt')} />
 
       <View style={styles.action}>
         <PrimaryButton label="Salvar alteração" onPress={handleSubmit} loading={saving} />
       </View>
+
+      <ConfirmDialog
+        visible={confirming}
+        title="Salvar alteração?"
+        message={affectedPassengersText(passengers.length, 'da mudança')}
+        actions={[{ label: 'Salvar e avisar', onPress: () => void save(), variant: 'primary' }]}
+        onDismiss={() => setConfirming(false)}
+      />
     </AuthScreen>
   );
 }
@@ -209,11 +228,5 @@ export default function EditRouteScreen() {
 const styles = StyleSheet.create({
   dateTimeRow: { flexDirection: 'row' },
   gap: { width: spacing.md },
-  dateError: {
-    ...typography.helper,
-    color: colors.danger,
-    marginTop: -spacing.sm,
-    marginBottom: spacing.md,
-  },
   action: { marginTop: spacing.sm },
 });

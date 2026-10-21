@@ -57,6 +57,13 @@ describe('profileIncompleteWarning', () => {
     expect(aviso).toContain('curso e campus');
   });
 
+  it('concorda o verbo com o número de campos: "falta" para um, "faltam" para vários', () => {
+    expect(profileIncompleteWarning({ ...COMPLETO, avatarUrl: null })).toContain('falta foto');
+    expect(profileIncompleteWarning({ ...COMPLETO, courseId: null, campusId: null })).toContain(
+      'faltam curso e campus',
+    );
+  });
+
   it('lista os quatro num perfil recém-criado', () => {
     const aviso = profileIncompleteWarning({});
     expect(aviso).toContain('nome, foto, curso e campus');

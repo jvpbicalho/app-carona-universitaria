@@ -1,14 +1,20 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { colors, radius, spacing, typography } from '@/theme/tokens';
+import { Icon, type IconName } from '@/components/Icon';
+import { colors, radius, sizes, spacing, typography } from '@/theme/tokens';
 
 type Tone = 'error' | 'success' | 'warning';
 
-const TONES: Record<Tone, { background: string; text: string }> = {
-  error: { background: colors.dangerSurface, text: colors.danger },
-  success: { background: colors.successSurface, text: colors.success },
-  warning: { background: colors.warningSurface, text: colors.warning },
+/**
+ * Sem verde nem âmbar (paleta monocromática). O tom muda o ícone, e o erro
+ * ganha o vermelho funcional — mas a mensagem em texto é sempre o que
+ * explica o que houve.
+ */
+const TONES: Record<Tone, { icon: IconName; color: string; accent: string }> = {
+  error: { icon: 'alert', color: colors.danger, accent: colors.danger },
+  warning: { icon: 'alert', color: colors.text, accent: colors.text },
+  success: { icon: 'check', color: colors.text, accent: colors.text },
 };
 
 /**
@@ -16,25 +22,33 @@ const TONES: Record<Tone, { background: string; text: string }> = {
  * accessibilityLiveRegion faz o leitor de tela anunciar sem precisar de foco.
  */
 export function Banner({ tone, message }: { tone: Tone; message: string }) {
-  const palette = TONES[tone];
+  const look = TONES[tone];
 
   return (
     <View
-      style={[styles.container, { backgroundColor: palette.background }]}
+      style={[styles.container, { borderLeftColor: look.accent }]}
       accessibilityLiveRegion="polite"
       accessibilityRole="alert"
     >
-      <Text style={[styles.text, { color: palette.text }]}>{message}</Text>
+      <View style={styles.icon}>
+        <Icon name={look.icon} size={sizes.icon} color={look.color} />
+      </View>
+      <Text style={[styles.text, { color: look.color }]}>{message}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: colors.surface,
+    borderLeftWidth: spacing.xs,
     borderRadius: radius.sm,
-    paddingVertical: spacing.sm + 2,
+    paddingVertical: spacing.sm + spacing.xxs,
     paddingHorizontal: spacing.md,
     marginBottom: spacing.md,
   },
-  text: { ...typography.body, fontWeight: '600' },
+  icon: { marginTop: spacing.xs, marginRight: spacing.sm },
+  text: { ...typography.body, flex: 1 },
 });

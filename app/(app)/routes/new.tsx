@@ -1,13 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 
 import { AddressSearchField } from '@/components/AddressSearchField';
 import { AuthScreen } from '@/components/AuthScreen';
 import { Banner } from '@/components/Banner';
+import { CampusShortcut } from '@/components/CampusShortcut';
+import { DateTimeError } from '@/components/DateTimeError';
 import { DateTimeField } from '@/components/DateTimeField';
 import { PrimaryButton } from '@/components/PrimaryButton';
-import { SplashGate } from '@/components/SplashGate';
+import { FormSkeleton } from '@/components/StateViews';
 import { Stepper } from '@/components/Stepper';
 import { TextField } from '@/components/TextField';
 import { fetchCampuses, type Campus } from '@/lib/referenceData';
@@ -20,7 +22,7 @@ import {
   validateRouteForm,
   type GeoPoint,
 } from '@/routes/routeValidation';
-import { colors, spacing, typography } from '@/theme/tokens';
+import { spacing } from '@/theme/tokens';
 
 function errorFor(errors: FieldError[], field: string): string | null {
   return errors.find((error) => error.field === field)?.message ?? null;
@@ -105,14 +107,20 @@ export default function NewRouteScreen() {
     }
   }
 
-  if (loading) return <SplashGate />;
+  if (loading) {
+    return (
+      <AuthScreen title="Nova carona" back backFallback="/routes">
+        <FormSkeleton fields={4} />
+      </AuthScreen>
+    );
+  }
 
   // Guardas de pré-condição: publicar exige perfil completo e veículo. As duas
   // regras também existem no trigger do banco; aqui elas viram uma saída clara
   // em vez de um erro depois do submit.
   if (!isComplete) {
     return (
-      <AuthScreen title="Nova carona">
+      <AuthScreen title="Nova carona" back backFallback="/routes">
         <Banner
           tone="warning"
           message="Complete seu perfil antes de publicar uma carona. Passageiros precisam saber com quem vão viajar."
@@ -124,7 +132,7 @@ export default function NewRouteScreen() {
 
   if (!vehicle) {
     return (
-      <AuthScreen title="Nova carona">
+      <AuthScreen title="Nova carona" back backFallback="/routes">
         <Banner
           tone="warning"
           message="Cadastre seu veículo antes de publicar uma carona: é ele que define quantas vagas você pode oferecer."
@@ -135,12 +143,16 @@ export default function NewRouteScreen() {
   }
 
   return (
-    <AuthScreen title="Nova carona" subtitle="Publique uma viagem específica e receba solicitações de vaga.">
+    <AuthScreen
+      title="Nova carona"
+      subtitle="Publique uma viagem específica e receba solicitações de vaga."
+      back
+      backFallback="/routes"
+    >
       {formError ? <Banner tone="error" message={formError} /> : null}
 
       <AddressSearchField
         label="Origem"
-        placeholder="buscar endereço"
         value={origin}
         onChange={(point) => {
           setOrigin(point);
@@ -152,7 +164,6 @@ export default function NewRouteScreen() {
 
       <AddressSearchField
         label="Destino"
-        placeholder="buscar endereço"
         value={destination}
         onChange={(point) => {
           setDestination(point);
@@ -162,8 +173,8 @@ export default function NewRouteScreen() {
       />
 
       {campus?.latitude != null && campus.longitude != null && !destination ? (
-        <Text
-          style={styles.suggestion}
+        <CampusShortcut
+          label={`Usar meu campus como destino: ${campus.name}`}
           onPress={() =>
             setDestination({
               label: campus.name,
@@ -171,10 +182,7 @@ export default function NewRouteScreen() {
               longitude: campus.longitude as number,
             })
           }
-          accessibilityRole="button"
-        >
-          Usar meu campus como destino: {campus.name}
-        </Text>
+        />
       ) : null}
 
       <View style={styles.dateTimeRow}>
@@ -201,11 +209,7 @@ export default function NewRouteScreen() {
         />
       </View>
 
-      {errorFor(errors, 'departureAt') ? (
-        <Text style={styles.dateError} accessibilityLiveRegion="polite">
-          {errorFor(errors, 'departureAt')}
-        </Text>
-      ) : null}
+      <DateTimeError message={errorFor(errors, 'departureAt')} />
 
       <Stepper
         label="Vagas nesta carona"
@@ -228,7 +232,7 @@ export default function NewRouteScreen() {
         onChangeText={setNotes}
         error={errorFor(errors, 'notes')}
         helper={`Opcional · ${notes.length}/${MAX_NOTES_LENGTH}`}
-        placeholder="ex: não levo animais"
+        placeholder="Ex.: não levo animais"
         multiline
         numberOfLines={2}
         maxLength={MAX_NOTES_LENGTH}
@@ -246,20 +250,6 @@ export default function NewRouteScreen() {
 const styles = StyleSheet.create({
   dateTimeRow: { flexDirection: 'row' },
   gap: { width: spacing.md },
-  dateError: {
-    ...typography.helper,
-    color: colors.danger,
-    marginTop: -spacing.sm,
-    marginBottom: spacing.md,
-  },
-  suggestion: {
-    ...typography.helper,
-    color: colors.primary,
-    fontWeight: '700',
-    marginTop: -spacing.sm,
-    marginBottom: spacing.md,
-    paddingVertical: spacing.xs,
-  },
   notes: { minHeight: 64, textAlignVertical: 'top' },
   action: { marginTop: spacing.sm },
 });

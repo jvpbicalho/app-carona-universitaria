@@ -67,7 +67,8 @@ export function profileIncompleteWarning(profile: ProfileDraft): string | null {
       ? labels[0]
       : `${labels.slice(0, -1).join(', ')} e ${labels[labels.length - 1]}`;
 
-  return `Complete seu perfil para usar o app: falta ${list}.`;
+  const verb = labels.length === 1 ? 'falta' : 'faltam';
+  return `Complete seu perfil para usar o UniRota: ${verb} ${list}.`;
 }
 
 // --------------------------------------------------------------------------
@@ -118,7 +119,7 @@ export function validateProfileForm(profile: ProfileDraft): FieldError[] {
   if (name.length === 0) {
     errors.push({ field: 'fullName', message: 'Informe seu nome completo.' });
   } else if (name.length < MIN_FULL_NAME_LENGTH) {
-    errors.push({ field: 'fullName', message: 'Nome muito curto.' });
+    errors.push({ field: 'fullName', message: 'Nome muito curto. Escreva seu nome e sobrenome.' });
   }
 
   if (!isFilled(profile.avatarUrl)) {

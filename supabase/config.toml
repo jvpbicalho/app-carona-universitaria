@@ -35,7 +35,7 @@ double_confirm_changes = true
 max_frequency = "60s"
 
 [auth.email.template.confirmation]
-subject = "Confirme seu e-mail — Carona Universitária"
+subject = "Confirme seu e-mail — UniRota"
 
 [functions.auth-login]
 # É o endpoint de login: o JWT ainda não existe quando ele é chamado.

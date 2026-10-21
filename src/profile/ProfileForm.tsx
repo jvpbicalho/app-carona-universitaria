@@ -15,7 +15,7 @@ import {
   validateProfileForm,
   type FieldError,
 } from '@/profile/profileValidation';
-import { spacing, typography } from '@/theme/tokens';
+import { sizes, spacing, typography } from '@/theme/tokens';
 
 type Props = {
   profile: Profile;
@@ -118,7 +118,7 @@ export function ProfileForm({ profile, mode, onSaved }: Props) {
   if (refsError) {
     return (
       <ErrorState
-        message="Não foi possível carregar a lista de cursos e campi."
+        message="Não foi possível carregar a lista de cursos e campi. Verifique sua conexão."
         onRetry={() => void loadReferences()}
       />
     );
@@ -130,6 +130,7 @@ export function ProfileForm({ profile, mode, onSaved }: Props) {
 
       <AvatarPicker
         uri={displayedAvatar}
+        name={fullName}
         onPick={(uri) => {
           setAvatarLocalUri(uri);
           setErrors((prev) => prev.filter((e) => e.field !== 'avatar'));
@@ -166,8 +167,8 @@ export function ProfileForm({ profile, mode, onSaved }: Props) {
 
       {loadingRefs ? (
         <View style={styles.skeletons}>
-          <SkeletonBlock height={52} />
-          <SkeletonBlock height={52} style={{ marginTop: spacing.md }} />
+          <SkeletonBlock height={sizes.control} />
+          <SkeletonBlock height={sizes.control} style={{ marginTop: spacing.md }} />
         </View>
       ) : (
         <>
@@ -204,7 +205,7 @@ export function ProfileForm({ profile, mode, onSaved }: Props) {
         onChangeText={setBio}
         error={errorFor(errors, 'bio')}
         helper={`Opcional · ${bio.length}/${MAX_BIO_LENGTH}`}
-        placeholder="Ex.: curso à noite, costumo sair do campus às 22h"
+        placeholder="Ex.: estudo à noite e costumo sair do campus às 22h"
         multiline
         numberOfLines={3}
         maxLength={MAX_BIO_LENGTH}
@@ -235,5 +236,5 @@ const styles = StyleSheet.create({
   skeletons: { marginBottom: spacing.md },
   bio: { minHeight: 80, textAlignVertical: 'top' },
   action: { marginTop: spacing.sm },
-  disclaimer: { ...typography.helper, marginTop: spacing.md },
+  disclaimer: { ...typography.caption, marginTop: spacing.md },
 });

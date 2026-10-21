@@ -30,7 +30,7 @@ export function formatDuration(totalSeconds: number): string {
 
 /** Mensagem completa de bloqueio, com o tempo restante. */
 export function lockedMessage(retryAfterSeconds: number): string {
-  return `Conta bloqueada temporariamente por tentativas inválidas. Tente novamente em ${formatDuration(retryAfterSeconds)}.`;
+  return `Conta bloqueada temporariamente por tentativas inválidas. Tente de novo em ${formatDuration(retryAfterSeconds)}.`;
 }
 
 /** Aviso de tentativas restantes, para o usuário não ser pego de surpresa. */
@@ -42,7 +42,7 @@ export function attemptsLeftMessage(attemptsLeft: number): string | null {
 
 /** Erros do signUp, que continua indo direto ao Supabase Auth. */
 export function describeSignUpError(error: { message?: string; code?: string } | null): string {
-  if (!error) return 'Não foi possível concluir o cadastro. Tente novamente.';
+  if (!error) return 'Não foi possível concluir o cadastro. Tente de novo.';
 
   const code = error.code ?? '';
   const message = (error.message ?? '').toLowerCase();
@@ -73,5 +73,5 @@ export function describeSignUpError(error: { message?: string; code?: string } |
   if (message.includes('network') || message.includes('fetch')) {
     return 'Sem conexão. Verifique sua internet e tente novamente.';
   }
-  return 'Não foi possível concluir o cadastro. Tente novamente.';
+  return 'Não foi possível concluir o cadastro. Tente de novo.';
 }

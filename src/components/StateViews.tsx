@@ -1,8 +1,9 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { PrimaryButton } from '@/components/PrimaryButton';
-import { colors, radius, spacing, typography } from '@/theme/tokens';
+import { Icon } from '@/components/Icon';
+import { PrimaryButton, type ButtonVariant } from '@/components/PrimaryButton';
+import { colors, radius, sizes, spacing, typography } from '@/theme/tokens';
 
 /**
  * Padrões transversais do wireframe. Definidos aqui uma vez para não serem
@@ -11,22 +12,26 @@ import { colors, radius, spacing, typography } from '@/theme/tokens';
 
 /**
  * P.1 — Estado vazio. "Sempre com uma ação, nunca só 'nada aqui'".
+ * Fundo cinza claro: o manual reserva essa cor para estados vazios.
  */
 export function EmptyState({
   message,
   actionLabel,
   onAction,
+  actionVariant = 'primary',
 }: {
   message: string;
   actionLabel?: string;
   onAction?: () => void;
+  /** Use 'outline' se a tela já tiver outro botão preto. */
+  actionVariant?: ButtonVariant;
 }) {
   return (
-    <View style={styles.centered}>
+    <View style={styles.empty}>
       <Text style={styles.message}>{message}</Text>
       {actionLabel && onAction ? (
         <View style={styles.action}>
-          <PrimaryButton label={actionLabel} onPress={onAction} />
+          <PrimaryButton label={actionLabel} onPress={onAction} variant={actionVariant} />
         </View>
       ) : null}
     </View>
@@ -46,12 +51,13 @@ export function ErrorState({
 }) {
   return (
     <View style={styles.centered}>
+      <Icon name="alert" size={sizes.icon * 1.5} color={colors.danger} />
       <Text style={[styles.message, styles.errorMessage]} accessibilityRole="alert">
         {message}
       </Text>
       {onRetry ? (
         <View style={styles.action}>
-          <PrimaryButton label="Tentar de novo" onPress={onRetry} variant="ghost" />
+          <PrimaryButton label="Tentar de novo" onPress={onRetry} variant="outline" />
         </View>
       ) : null}
     </View>
@@ -101,23 +107,48 @@ export function SkeletonList({ count = 3 }: { count?: number }) {
   );
 }
 
+/**
+ * Esqueleto dos campos de um formulário. Vai dentro do AuthScreen, que já
+ * mostra o título real — só os dados ainda estão chegando.
+ */
+export function FormSkeleton({ fields = 3 }: { fields?: number }) {
+  return (
+    <View accessibilityLabel="Carregando" accessibilityRole="progressbar">
+      {Array.from({ length: fields }).map((_, index) => (
+        <View key={index} style={{ marginBottom: spacing.lg }}>
+          <SkeletonBlock height={12} width="30%" />
+          <SkeletonBlock height={sizes.control} style={{ marginTop: spacing.xs }} />
+        </View>
+      ))}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  empty: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    paddingVertical: spacing.xl,
+    paddingHorizontal: spacing.lg,
+  },
   centered: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: spacing.xl,
     paddingHorizontal: spacing.lg,
   },
-  message: { ...typography.body, color: colors.textMuted, textAlign: 'center' },
-  errorMessage: { color: colors.danger },
+  message: { ...typography.bodySecondary, textAlign: 'center' },
+  errorMessage: { color: colors.danger, marginTop: spacing.sm },
   action: { marginTop: spacing.lg, alignSelf: 'stretch' },
   skeleton: {
     backgroundColor: colors.surface,
     borderRadius: radius.sm,
   },
   card: {
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderWidth: sizes.hairline,
+    borderColor: colors.divider,
     borderRadius: radius.md,
     padding: spacing.md,
     marginBottom: spacing.sm,

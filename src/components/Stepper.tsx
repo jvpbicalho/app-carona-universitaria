@@ -1,7 +1,8 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, radius, spacing, typography } from '@/theme/tokens';
+import { FieldMessage, fieldStyles } from '@/components/FieldParts';
+import { colors, radius, sizes, spacing, typography } from '@/theme/tokens';
 
 type Props = {
   label: string;
@@ -37,8 +38,8 @@ export function Stepper({
   const canIncrease = !disabled && value < max;
 
   return (
-    <View style={styles.wrapper}>
-      <Text style={styles.label}>{label}</Text>
+    <View style={fieldStyles.wrapper}>
+      <Text style={fieldStyles.label}>{label}</Text>
 
       <View style={[styles.row, Boolean(error) && styles.rowError]}>
         <Pressable
@@ -81,43 +82,33 @@ export function Stepper({
         </Pressable>
       </View>
 
-      {error ? (
-        <Text style={styles.error} accessibilityLiveRegion="polite">
-          {error}
-        </Text>
-      ) : helper ? (
-        <Text style={styles.helper}>{helper}</Text>
-      ) : null}
+      <FieldMessage error={error} helper={helper} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: { marginBottom: spacing.md },
-  label: { ...typography.label, marginBottom: spacing.xs },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    borderWidth: 1,
+    borderWidth: sizes.hairline,
     borderColor: colors.border,
     borderRadius: radius.md,
     backgroundColor: colors.background,
   },
-  rowError: { borderColor: colors.danger, borderWidth: 2 },
+  rowError: { borderColor: colors.danger, borderWidth: sizes.borderStrong },
   button: {
-    width: 52,
-    height: 52,
+    width: sizes.control,
+    height: sizes.control,
     alignItems: 'center',
     justifyContent: 'center',
   },
   buttonPressed: { backgroundColor: colors.surface },
-  buttonDisabled: { opacity: 0.35 },
-  buttonText: { fontSize: 24, color: colors.primary, fontWeight: '700' },
-  buttonTextDisabled: { color: colors.textMuted },
+  buttonDisabled: { opacity: 0.4 },
+  buttonText: { ...typography.counter },
+  buttonTextDisabled: { color: colors.iconInactive },
   valueBox: { minWidth: 72, alignItems: 'center', paddingHorizontal: spacing.sm },
-  value: { fontSize: 18, fontWeight: '700', color: colors.text },
-  suffix: { fontSize: 14, fontWeight: '400', color: colors.textMuted },
-  error: { ...typography.helper, color: colors.danger, marginTop: spacing.xs },
-  helper: { ...typography.helper, marginTop: spacing.xs },
+  value: { ...typography.counter },
+  suffix: { ...typography.caption },
 });

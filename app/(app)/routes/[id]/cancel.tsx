@@ -6,8 +6,7 @@ import { AuthScreen } from '@/components/AuthScreen';
 import { Banner } from '@/components/Banner';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { Select } from '@/components/Select';
-import { SplashGate } from '@/components/SplashGate';
-import { ErrorState } from '@/components/StateViews';
+import { ErrorState, FormSkeleton } from '@/components/StateViews';
 import { TextField } from '@/components/TextField';
 import type { FieldError } from '@/profile/profileValidation';
 import { cancelRoute, describeRouteError } from '@/routes/routeApi';
@@ -22,7 +21,7 @@ import {
   type CancellationReasonCode,
 } from '@/routes/routeValidation';
 import { affectedPassengersText, useRouteDetail } from '@/routes/useRouteDetail';
-import { spacing, typography } from '@/theme/tokens';
+import { colors, radius, spacing, typography } from '@/theme/tokens';
 
 function errorFor(errors: FieldError[], field: string): string | null {
   return errors.find((error) => error.field === field)?.message ?? null;
@@ -66,7 +65,7 @@ export default function CancelRouteScreen() {
       setFormError(
         describeRouteError(
           err as { message?: string; hint?: string | null },
-          'Não foi possível cancelar a carona. Tente novamente.',
+          'Não foi possível cancelar a carona. Tente de novo.',
         ),
       );
     } finally {
@@ -74,11 +73,17 @@ export default function CancelRouteScreen() {
     }
   }
 
-  if (loading) return <SplashGate />;
+  if (loading) {
+    return (
+      <AuthScreen title="Cancelar carona" back backFallback="/routes">
+        <FormSkeleton fields={2} />
+      </AuthScreen>
+    );
+  }
 
   if (error) {
     return (
-      <AuthScreen title="Cancelar carona">
+      <AuthScreen title="Cancelar carona" back backFallback="/routes">
         <ErrorState message={error} onRetry={() => void reload()} />
       </AuthScreen>
     );
@@ -86,9 +91,12 @@ export default function CancelRouteScreen() {
 
   if (notFound || !route) {
     return (
-      <AuthScreen title="Cancelar carona">
-        <Banner tone="error" message="Esta carona não existe ou você não tem acesso a ela." />
-        <PrimaryButton label="Voltar" variant="ghost" onPress={() => router.back()} />
+      <AuthScreen title="Cancelar carona" back backFallback="/routes">
+        <Banner
+          tone="error"
+          message="Não encontramos esta carona. Ela pode ter sido removida, ou você não tem acesso a ela."
+        />
+        <PrimaryButton label="Ver minhas caronas" variant="outline" onPress={() => router.replace('/routes')} />
       </AuthScreen>
     );
   }
@@ -96,9 +104,9 @@ export default function CancelRouteScreen() {
   const modifiable = canModifyRoute(route);
   if (!modifiable.ok) {
     return (
-      <AuthScreen title="Cancelar carona">
+      <AuthScreen title="Cancelar carona" back backFallback="/routes">
         <Banner tone="warning" message={modifiable.message} />
-        <PrimaryButton label="Voltar" variant="ghost" onPress={() => router.back()} />
+        <PrimaryButton label="Voltar ao detalhe" variant="outline" onPress={() => router.back()} />
       </AuthScreen>
     );
   }
@@ -109,12 +117,14 @@ export default function CancelRouteScreen() {
     <AuthScreen
       title="Cancelar esta carona?"
       subtitle={`${affectedPassengersText(passengers.length, 'com o motivo')} A ação não pode ser desfeita.`}
+      back
+      backFallback="/routes"
     >
       {bannerMessage ? <Banner tone="error" message={bannerMessage} /> : null}
 
       <View style={styles.summary}>
-        <Text style={typography.label}>{formatDeparture(route.departureAt)}</Text>
-        <Text style={typography.helper}>
+        <Text style={typography.bodyStrong}>{formatDeparture(route.departureAt)}</Text>
+        <Text style={typography.caption}>
           {route.originLabel} → {route.destinationLabel}
         </Text>
       </View>
@@ -142,7 +152,7 @@ export default function CancelRouteScreen() {
           }}
           error={errorFor(errors, 'otherReason')}
           helper={`${otherText.length}/${MAX_OTHER_REASON_LENGTH}`}
-          placeholder="ex: greve do metrô"
+          placeholder="Ex.: greve do metrô"
           maxLength={MAX_OTHER_REASON_LENGTH}
           editable={!saving}
         />
@@ -156,14 +166,19 @@ export default function CancelRouteScreen() {
           loading={saving}
         />
         <View style={styles.spacer} />
-        <PrimaryButton label="Voltar" variant="ghost" onPress={() => router.back()} disabled={saving} />
+        <PrimaryButton label="Manter carona" variant="outline" onPress={() => router.back()} disabled={saving} />
       </View>
     </AuthScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  summary: { marginBottom: spacing.lg },
+  summary: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+  },
   actions: { marginTop: spacing.md },
   spacer: { height: spacing.sm },
 });

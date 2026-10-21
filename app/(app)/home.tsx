@@ -6,6 +6,7 @@ import { router } from 'expo-router';
 import { Banner } from '@/components/Banner';
 import { ListRow } from '@/components/ListRow';
 import { PrimaryButton } from '@/components/PrimaryButton';
+import { screenLayout } from '@/components/AuthScreen';
 import { ErrorState, SkeletonBlock } from '@/components/StateViews';
 import { useProfile } from '@/profile/ProfileContext';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
@@ -26,9 +27,9 @@ export default function HomeScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-        <View style={styles.content}>
-          <SkeletonBlock height={28} width="60%" />
+      <SafeAreaView style={screenLayout.safe} edges={['top', 'bottom']}>
+        <View style={[screenLayout.column, styles.content]}>
+          <SkeletonBlock height={34} width="60%" />
           <SkeletonBlock height={18} width="80%" style={{ marginTop: spacing.sm }} />
           <SkeletonBlock height={72} style={{ marginTop: spacing.lg }} />
           <SkeletonBlock height={54} style={{ marginTop: spacing.lg }} />
@@ -39,7 +40,7 @@ export default function HomeScreen() {
 
   if (error) {
     return (
-      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+      <SafeAreaView style={screenLayout.safe} edges={['top', 'bottom']}>
         <ErrorState message={error} onRetry={() => void reload()} />
       </SafeAreaView>
     );
@@ -49,58 +50,62 @@ export default function HomeScreen() {
   const isDriverMode = activeRole === 'motorista';
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={typography.title}>Olá, {firstName}</Text>
-        <Text style={[typography.subtitle, styles.subtitle]}>
-          {isDriverMode ? 'Modo motorista' : 'Modo passageiro'}
-        </Text>
+    <SafeAreaView style={screenLayout.safe} edges={['top', 'bottom']}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <View style={[screenLayout.column, styles.content]}>
+          <Text style={typography.screenTitle} accessibilityRole="header">
+            Olá, {firstName}
+          </Text>
+          <Text style={[typography.bodySecondary, styles.subtitle]}>
+            {isDriverMode ? 'Modo motorista' : 'Modo passageiro'}
+          </Text>
 
-        {/* Critério de aceite: perfil incompleto exibe um aviso. Clicável,
-            porque avisar sem oferecer o caminho não resolve nada. */}
-        {incompleteWarning ? (
-          <Pressable
-            onPress={() => router.push('/complete-profile')}
-            accessibilityRole="button"
-            accessibilityHint="Abre a tela de completar perfil"
-          >
-            <Banner tone="warning" message={incompleteWarning} />
-          </Pressable>
-        ) : null}
+          {/* Critério de aceite: perfil incompleto exibe um aviso. Clicável,
+              porque avisar sem oferecer o caminho não resolve nada. */}
+          {incompleteWarning ? (
+            <Pressable
+              onPress={() => router.push('/complete-profile')}
+              accessibilityRole="button"
+              accessibilityHint="Abre a tela de completar perfil"
+            >
+              <Banner tone="warning" message={incompleteWarning} />
+            </Pressable>
+          ) : null}
 
-        {isDriverMode ? (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Ofereça uma carona</Text>
-            <Text style={typography.helper}>
-              {vehicle
-                ? `${vehicle.makeModel} · ${vehicle.seats} ${vehicle.seats === 1 ? 'vaga' : 'vagas'}`
-                : 'Sem veículo cadastrado.'}
-            </Text>
-            <View style={styles.cardAction}>
-              <PrimaryButton label="Publicar carona" onPress={() => router.push('/routes/new')} />
+          {isDriverMode ? (
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Ofereça uma carona</Text>
+              <Text style={typography.caption}>
+                {vehicle
+                  ? `${vehicle.makeModel} · ${vehicle.seats} ${vehicle.seats === 1 ? 'vaga' : 'vagas'}`
+                  : 'Sem veículo cadastrado.'}
+              </Text>
+              <View style={styles.cardAction}>
+                <PrimaryButton label="Publicar carona" onPress={() => router.push('/routes/new')} />
+              </View>
             </View>
-          </View>
-        ) : (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Encontre uma carona</Text>
-            <Text style={typography.helper}>
-              Informe de onde sai, para onde vai e a que horas.
-            </Text>
-            <View style={styles.cardAction}>
-              <PrimaryButton label="Buscar carona" onPress={() => router.push('/search')} />
+          ) : (
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Encontre uma carona</Text>
+              <Text style={typography.caption}>
+                Informe de onde sai, para onde vai e a que horas.
+              </Text>
+              <View style={styles.cardAction}>
+                <PrimaryButton label="Buscar carona" onPress={() => router.push('/search')} />
+              </View>
             </View>
-          </View>
-        )}
+          )}
 
-        <View style={styles.menu}>
-          <ListRow label="Meu perfil" onPress={() => router.push('/profile')} />
-          <ListRow label="Minhas caronas" onPress={() => router.push('/routes')} />
-          <ListRow
-            label="Meu veículo"
-            value={vehicle ? vehicle.plate : 'não cadastrado'}
-            attention={!vehicle}
-            onPress={() => router.push('/profile/vehicle')}
-          />
+          <View style={styles.menu}>
+            <ListRow label="Meu perfil" onPress={() => router.push('/profile')} />
+            <ListRow label="Minhas caronas" onPress={() => router.push('/routes')} />
+            <ListRow
+              label="Meu veículo"
+              value={vehicle ? vehicle.plate : 'Não cadastrado'}
+              attention={!vehicle}
+              onPress={() => router.push('/profile/vehicle')}
+            />
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -108,7 +113,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
+  scroll: { flexGrow: 1 },
   content: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.xl,
@@ -121,7 +126,7 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     marginBottom: spacing.md,
   },
-  cardTitle: { ...typography.label, fontSize: 16, marginBottom: spacing.xs },
+  cardTitle: { ...typography.sectionTitle, marginBottom: spacing.xs },
   cardAction: { marginTop: spacing.md },
   menu: { marginTop: spacing.md },
 });

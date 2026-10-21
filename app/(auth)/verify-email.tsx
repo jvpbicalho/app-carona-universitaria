@@ -6,7 +6,7 @@ import { useAuth } from '@/auth/AuthContext';
 import { AuthScreen } from '@/components/AuthScreen';
 import { Banner } from '@/components/Banner';
 import { PrimaryButton } from '@/components/PrimaryButton';
-import { colors, spacing, typography } from '@/theme/tokens';
+import { colors, radius, spacing, typography } from '@/theme/tokens';
 
 /**
  * Confirmação de cadastro (História 1). Exibida após o signUp, quando o
@@ -35,7 +35,7 @@ export default function VerifyEmailScreen() {
   return (
     <AuthScreen
       title="Confirme seu e-mail"
-      subtitle="Falta um passo para ativar sua conta."
+      subtitle="Falta um passo para ativar sua conta no UniRota."
     >
       {feedback ? <Banner tone={feedback.tone} message={feedback.message} /> : null}
 
@@ -53,7 +53,7 @@ export default function VerifyEmailScreen() {
         <View style={styles.spacer} />
         <PrimaryButton
           label="Reenviar link"
-          variant="ghost"
+          variant="outline"
           onPress={handleResend}
           loading={resending}
           disabled={!email}
@@ -66,16 +66,15 @@ export default function VerifyEmailScreen() {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
-    borderRadius: 12,
+    borderRadius: radius.md,
     padding: spacing.md,
   },
   email: {
-    ...typography.body,
-    fontWeight: '700',
+    ...typography.bodyStrong,
     marginTop: spacing.xs,
     marginBottom: spacing.sm,
   },
-  instructions: { ...typography.helper },
+  instructions: { ...typography.caption },
   actions: { marginTop: spacing.lg },
   spacer: { height: spacing.sm },
 });

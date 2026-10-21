@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 
 import { AddressSearchField } from '@/components/AddressSearchField';
 import { AuthScreen } from '@/components/AuthScreen';
+import { CampusShortcut } from '@/components/CampusShortcut';
+import { DateTimeError } from '@/components/DateTimeError';
 import { DateTimeField } from '@/components/DateTimeField';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { fetchCampuses, type Campus } from '@/lib/referenceData';
@@ -11,7 +13,7 @@ import { useProfile } from '@/profile/ProfileContext';
 import type { FieldError } from '@/profile/profileValidation';
 import { combineDateAndTime, type GeoPoint } from '@/routes/routeValidation';
 import { defaultDesiredAt, validateSearchForm } from '@/search/searchValidation';
-import { colors, spacing, typography } from '@/theme/tokens';
+import { spacing } from '@/theme/tokens';
 
 function errorFor(errors: FieldError[], field: string): string | null {
   return errors.find((error) => error.field === field)?.message ?? null;
@@ -78,7 +80,11 @@ export default function SearchScreen() {
   const hasCampusShortcut = campus?.latitude != null && campus.longitude != null;
 
   return (
-    <AuthScreen title="Buscar carona" subtitle="Encontre caronas que saem perto de você, no horário que você precisa.">
+    <AuthScreen
+      title="Buscar carona"
+      subtitle="Encontre caronas que saem perto de você, no horário que você precisa."
+      back
+    >
       <AddressSearchField
         label="Saindo de"
         value={origin}
@@ -101,9 +107,8 @@ export default function SearchScreen() {
       />
 
       {hasCampusShortcut && !destination ? (
-        <Text
-          style={styles.shortcut}
-          accessibilityRole="button"
+        <CampusShortcut
+          label={`Ir para o meu campus: ${campus.name}`}
           onPress={() => {
             setDestination({
               label: campus.name,
@@ -112,9 +117,7 @@ export default function SearchScreen() {
             });
             clearError('destination');
           }}
-        >
-          Ir para o meu campus: {campus.name}
-        </Text>
+        />
       ) : null}
 
       <View style={styles.dateTimeRow}>
@@ -141,35 +144,17 @@ export default function SearchScreen() {
         />
       </View>
 
-      {errorFor(errors, 'desiredAt') ? (
-        <Text style={styles.dateError} accessibilityLiveRegion="polite">
-          {errorFor(errors, 'desiredAt')}
-        </Text>
-      ) : null}
+      <DateTimeError message={errorFor(errors, 'desiredAt')} />
 
       <View style={styles.action}>
-        <PrimaryButton label="Buscar" onPress={handleSearch} />
+        <PrimaryButton label="Buscar caronas" onPress={handleSearch} />
       </View>
     </AuthScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  shortcut: {
-    ...typography.helper,
-    color: colors.primary,
-    fontWeight: '700',
-    marginTop: -spacing.sm,
-    marginBottom: spacing.md,
-    paddingVertical: spacing.xs,
-  },
   dateTimeRow: { flexDirection: 'row' },
   gap: { width: spacing.md },
-  dateError: {
-    ...typography.helper,
-    color: colors.danger,
-    marginTop: -spacing.sm,
-    marginBottom: spacing.md,
-  },
   action: { marginTop: spacing.sm },
 });

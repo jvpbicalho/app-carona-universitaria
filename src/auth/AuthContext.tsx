@@ -136,7 +136,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return {
         ok: false,
         kind: 'unknown',
-        message: 'O servidor respondeu de forma inesperada. Tente novamente em instantes.',
+        message: 'Não foi possível entrar agora. Tente de novo em instantes.',
       };
     }
 
@@ -148,7 +148,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         refresh_token: session.refresh_token,
       });
       if (error) {
-        return { ok: false, kind: 'unknown', message: 'Não foi possível iniciar a sessão. Tente novamente.' };
+        return { ok: false, kind: 'unknown', message: 'Não foi possível iniciar a sessão. Tente de novo.' };
       }
       return { ok: true };
     }
@@ -187,7 +187,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       case 'missing_credentials':
         return { ok: false, kind: 'unknown', message: 'Informe e-mail e senha.' };
       default:
-        return { ok: false, kind: 'unknown', message: 'Não foi possível entrar. Tente novamente.' };
+        return { ok: false, kind: 'unknown', message: 'Não foi possível entrar. Tente de novo.' };
     }
   }, []);
 

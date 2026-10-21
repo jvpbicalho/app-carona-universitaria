@@ -3,12 +3,16 @@ import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect } from 'expo-router';
 
+import { screenLayout } from '@/components/AuthScreen';
+import { Icon } from '@/components/Icon';
 import { PrimaryButton } from '@/components/PrimaryButton';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { EmptyState, ErrorState, SkeletonList } from '@/components/StateViews';
 import { useProfile } from '@/profile/ProfileContext';
 import { fetchMyRoutes, type Route } from '@/routes/routeApi';
 import { formatDeparture } from '@/routes/routeValidation';
-import { colors, radius, spacing, typography } from '@/theme/tokens';
+import { RouteLegs } from '@/components/RouteLegs';
+import { colors, radius, sizes, spacing, typography } from '@/theme/tokens';
 
 /**
  * Wireframe 3.3 — "Minhas caronas" (lado motorista).
@@ -29,7 +33,7 @@ export default function MyRoutesScreen() {
     try {
       setRoutes(await fetchMyRoutes(profile.id));
     } catch {
-      setError('Não foi possível carregar suas caronas.');
+      setError('Não foi possível carregar suas caronas. Verifique sua conexão.');
     } finally {
       setLoading(false);
     }
@@ -51,40 +55,47 @@ export default function MyRoutesScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <View style={styles.header}>
-        <Text style={typography.title}>Minhas caronas</Text>
-        <Text style={[typography.subtitle, styles.subtitle]}>
-          Viagens que você publicou como motorista.
-        </Text>
+    <SafeAreaView style={screenLayout.safe} edges={['top', 'bottom']}>
+      <View style={[screenLayout.column, screenLayout.fill]}>
+        <View style={styles.header}>
+          <ScreenHeader />
+          <Text style={typography.screenTitle} accessibilityRole="header">
+            Minhas caronas
+          </Text>
+          <Text style={[typography.bodySecondary, styles.subtitle]}>
+            Viagens que você publicou como motorista.
+          </Text>
+        </View>
+
+        {loading ? (
+          <View style={styles.body}>
+            <SkeletonList count={3} />
+          </View>
+        ) : error ? (
+          <ErrorState message={error} onRetry={() => void load()} />
+        ) : routes.length === 0 ? (
+          <View style={styles.body}>
+            <EmptyState
+              message="Você ainda não publicou nenhuma carona."
+              actionLabel={vehicle ? 'Publicar carona' : 'Cadastrar veículo'}
+              onAction={vehicle ? goToNew : () => router.push('/profile/vehicle')}
+            />
+          </View>
+        ) : (
+          <FlatList
+            data={routes}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.body}
+            renderItem={({ item }) => <RouteCard route={item} />}
+          />
+        )}
+
+        {routes.length > 0 ? (
+          <View style={styles.footer}>
+            <PrimaryButton label="Publicar nova carona" onPress={goToNew} />
+          </View>
+        ) : null}
       </View>
-
-      {loading ? (
-        <View style={styles.body}>
-          <SkeletonList count={3} />
-        </View>
-      ) : error ? (
-        <ErrorState message={error} onRetry={() => void load()} />
-      ) : routes.length === 0 ? (
-        <EmptyState
-          message="Você ainda não publicou nenhuma carona."
-          actionLabel={vehicle ? 'Publicar carona' : 'Cadastrar veículo'}
-          onAction={vehicle ? goToNew : () => router.push('/profile/vehicle')}
-        />
-      ) : (
-        <FlatList
-          data={routes}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.body}
-          renderItem={({ item }) => <RouteCard route={item} />}
-        />
-      )}
-
-      {routes.length > 0 ? (
-        <View style={styles.footer}>
-          <PrimaryButton label="+ Nova carona" onPress={goToNew} />
-        </View>
-      ) : null}
     </SafeAreaView>
   );
 }
@@ -102,24 +113,19 @@ function RouteCard({ route }: { route: Route }) {
     >
       <Text style={styles.departure}>{formatDeparture(route.departureAt)}</Text>
 
-      <Text style={styles.leg} numberOfLines={1}>
-        {route.originLabel}
-      </Text>
-      <Text style={styles.arrow}>↓</Text>
-      <Text style={styles.leg} numberOfLines={1}>
-        {route.destinationLabel}
-      </Text>
+      <RouteLegs origin={route.originLabel} destination={route.destinationLabel} />
 
-      <View style={styles.badges}>
+      <View style={styles.footerRow}>
         {cancelled ? (
-          <Text style={[styles.badge, styles.badgeCancelled]}>cancelada</Text>
+          <Text style={[styles.badge, styles.badgeStrong]}>Cancelada</Text>
         ) : full ? (
-          <Text style={[styles.badge, styles.badgeFull]}>lotada</Text>
+          <Text style={[styles.badge, styles.badgeStrong]}>Lotada</Text>
         ) : (
           <Text style={styles.badge}>
-            {route.seatsAvailable} de {route.seatsTotal} {route.seatsTotal === 1 ? 'vaga' : 'vagas'}
+            {route.seatsAvailable} de {route.seatsTotal} {route.seatsTotal === 1 ? 'vaga livre' : 'vagas livres'}
           </Text>
         )}
+        <Icon name="chevron-right" size={sizes.iconSm} color={colors.iconInactive} />
       </View>
 
       {route.notes ? <Text style={styles.notes}>{route.notes}</Text> : null}
@@ -128,7 +134,6 @@ function RouteCard({ route }: { route: Route }) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
   header: { paddingHorizontal: spacing.lg, paddingTop: spacing.lg },
   subtitle: { marginTop: spacing.xs, marginBottom: spacing.md },
   body: { paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
@@ -136,31 +141,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.md,
     paddingTop: spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: colors.surface,
+    borderTopWidth: sizes.hairline,
+    borderTopColor: colors.divider,
   },
   card: {
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderWidth: sizes.hairline,
+    borderColor: colors.divider,
     borderRadius: radius.md,
     padding: spacing.md,
     marginBottom: spacing.sm,
   },
   cardCancelled: { opacity: 0.6 },
   cardPressed: { backgroundColor: colors.surface },
-  departure: { ...typography.label, color: colors.primary, marginBottom: spacing.sm },
-  leg: { ...typography.body },
-  arrow: { ...typography.helper, marginVertical: 2 },
-  badges: { flexDirection: 'row', marginTop: spacing.sm },
+  departure: { ...typography.bodyStrong, marginBottom: spacing.sm },
+  footerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.sm },
   badge: {
-    ...typography.helper,
+    ...typography.caption,
     backgroundColor: colors.surface,
     paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
+    paddingVertical: spacing.xxs,
     borderRadius: radius.sm,
     overflow: 'hidden',
   },
-  badgeFull: { backgroundColor: colors.warningSurface, color: colors.warning, fontWeight: '700' },
-  badgeCancelled: { backgroundColor: colors.dangerSurface, color: colors.danger, fontWeight: '700' },
-  notes: { ...typography.helper, marginTop: spacing.sm, fontStyle: 'italic' },
+  badgeStrong: { ...typography.captionStrong },
+  notes: { ...typography.caption, marginTop: spacing.sm },
 });

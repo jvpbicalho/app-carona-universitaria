@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthContext';
@@ -8,7 +8,8 @@ import { AuthScreen } from '@/components/AuthScreen';
 import { Banner } from '@/components/Banner';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { TextField } from '@/components/TextField';
-import { colors, spacing, typography } from '@/theme/tokens';
+import { TextLink } from '@/components/TextLink';
+import { spacing, typography } from '@/theme/tokens';
 
 /**
  * História 2 — Login.
@@ -93,17 +94,12 @@ export default function SignInScreen() {
   return (
     <AuthScreen
       title="Entrar"
-      subtitle="Acesse com seu e-mail institucional e senha."
+      subtitle="Acesse o UniRota com seu e-mail institucional e senha."
       footer={
-        <Pressable
-          onPress={() => router.replace('/sign-up')}
-          accessibilityRole="link"
-          disabled={submitting}
-        >
-          <Text style={styles.link}>
-            Não tem conta? <Text style={styles.linkStrong}>Criar conta</Text>
-          </Text>
-        </Pressable>
+        <View style={styles.footer}>
+          <Text style={typography.bodySecondary}>Não tem conta?</Text>
+          <TextLink label="Criar conta" role="link" onPress={() => router.replace('/sign-up')} disabled={submitting} />
+        </View>
       }
     >
       {locked ? <Banner tone="error" message={lockedMessage(lockSeconds)} /> : null}
@@ -155,6 +151,5 @@ export default function SignInScreen() {
 
 const styles = StyleSheet.create({
   action: { marginTop: spacing.sm },
-  link: { ...typography.body, textAlign: 'center', color: colors.textMuted },
-  linkStrong: { color: colors.primary, fontWeight: '700' },
+  footer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xs },
 });

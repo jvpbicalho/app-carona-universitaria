@@ -4,12 +4,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthContext';
+import { screenLayout } from '@/components/AuthScreen';
+import { initialsOf } from '@/components/AvatarPicker';
 import { Banner } from '@/components/Banner';
+import { Icon } from '@/components/Icon';
 import { ListRow } from '@/components/ListRow';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { ErrorState, SkeletonBlock } from '@/components/StateViews';
 import { useProfile, type ActiveRole } from '@/profile/ProfileContext';
 import { avatarPublicUrl } from '@/profile/profileApi';
-import { colors, radius, spacing, typography } from '@/theme/tokens';
+import { colors, radius, sizes, spacing, typography } from '@/theme/tokens';
 
 /**
  * Wireframe 2.2 — "Meu perfil".
@@ -33,9 +37,10 @@ export default function ProfileScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-        <View style={styles.content}>
-          <SkeletonBlock height={112} width="100%" />
+      <SafeAreaView style={screenLayout.safe} edges={['top', 'bottom']}>
+        <View style={[screenLayout.column, styles.content]}>
+          <ScreenHeader />
+          <SkeletonBlock height={sizes.avatarLg + spacing.xl} width="100%" />
           <SkeletonBlock height={44} style={{ marginTop: spacing.lg }} />
           <SkeletonBlock height={54} style={{ marginTop: spacing.lg }} />
           <SkeletonBlock height={54} style={{ marginTop: spacing.sm }} />
@@ -46,7 +51,10 @@ export default function ProfileScreen() {
 
   if (error || !profile) {
     return (
-      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+      <SafeAreaView style={screenLayout.safe} edges={['top', 'bottom']}>
+        <View style={[screenLayout.column, styles.content]}>
+          <ScreenHeader />
+        </View>
         <ErrorState
           message={error ?? 'Não foi possível carregar seu perfil.'}
           onRetry={() => void reload()}
@@ -58,21 +66,27 @@ export default function ProfileScreen() {
   const photo = avatarPublicUrl(profile.avatarUrl);
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={typography.title}>Meu perfil</Text>
+    <SafeAreaView style={screenLayout.safe} edges={['top', 'bottom']}>
+      <ScrollView contentContainerStyle={[screenLayout.column, styles.content]} showsVerticalScrollIndicator={false}>
+        <ScreenHeader />
+        <Text style={typography.screenTitle} accessibilityRole="header">
+          Meu perfil
+        </Text>
 
         <View style={styles.identity}>
           {photo ? (
             <Image source={{ uri: photo }} style={styles.avatar} accessibilityIgnoresInvertColors />
           ) : (
             <View style={[styles.avatar, styles.avatarEmpty]}>
-              <Text style={typography.helper}>foto</Text>
+              <Text style={typography.sectionTitle}>{initialsOf(profile.fullName) || '?'}</Text>
             </View>
           )}
 
           <Text style={styles.name}>{profile.fullName ?? 'Sem nome'}</Text>
-          <Text style={styles.verified}>✓ e-mail verificado</Text>
+          <View style={styles.verified}>
+            <Icon name="check" size={sizes.iconSm} color={colors.textSecondary} />
+            <Text style={styles.verifiedText}>E-mail institucional verificado</Text>
+          </View>
         </View>
 
         {incompleteWarning ? (
@@ -96,22 +110,23 @@ export default function ProfileScreen() {
         <View style={styles.menu}>
           <ListRow
             label="Dados pessoais"
-            value={profile.isComplete ? 'completo' : 'incompleto'}
+            value={profile.isComplete ? 'Completo' : 'Incompleto'}
             attention={!profile.isComplete}
             onPress={() => router.push('/profile/personal')}
           />
           <ListRow
             label="Meu veículo"
-            value={vehicle ? `${vehicle.makeModel} · ${vehicle.seats} vagas` : 'não cadastrado'}
+            value={vehicle ? `${vehicle.makeModel} · ${vehicle.seats} ${vehicle.seats === 1 ? 'vaga' : 'vagas'}` : 'Não cadastrado'}
             attention={!vehicle}
             onPress={() => router.push('/profile/vehicle')}
           />
           <ListRow label="Minhas caronas" onPress={() => router.push('/routes')} />
           {/* EP07 e EP09 entram nos próximos sprints; as linhas ficam visíveis
               mas desabilitadas para não prometer o que ainda não existe. */}
-          <ListRow label="Avaliações recebidas" value="em breve" disabled />
-          <ListRow label="Histórico de viagens" value="em breve" disabled />
-          <ListRow label="Sair" danger onPress={() => void signOut()} />
+          <ListRow label="Avaliações recebidas" value="Em breve" disabled />
+          <ListRow label="Histórico de viagens" value="Em breve" disabled />
+          {/* Sair não é destrutivo (dá para entrar de novo): sem vermelho. */}
+          <ListRow label="Sair da conta" onPress={() => void signOut()} />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -144,13 +159,15 @@ function RoleSwitch({
             disabled={!option.enabled}
             accessibilityRole="radio"
             accessibilityState={{ selected, disabled: !option.enabled }}
-            style={[
-              styles.switchOption,
-              selected && styles.switchOptionActive,
-              !option.enabled && styles.switchOptionDisabled,
-            ]}
+            style={[styles.switchOption, selected && styles.switchOptionActive]}
           >
-            <Text style={[styles.switchLabel, selected && styles.switchLabelActive]}>
+            <Text
+              style={[
+                styles.switchLabel,
+                selected && styles.switchLabelActive,
+                !option.enabled && styles.switchLabelDisabled,
+              ]}
+            >
               {option.label}
             </Text>
           </Pressable>
@@ -161,34 +178,37 @@ function RoleSwitch({
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
   content: { paddingHorizontal: spacing.lg, paddingTop: spacing.lg, paddingBottom: spacing.xl },
   identity: { alignItems: 'center', marginVertical: spacing.lg },
-  avatar: { width: 96, height: 96, borderRadius: 48, backgroundColor: colors.surface },
-  avatarEmpty: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
+  avatar: {
+    width: sizes.avatarLg,
+    height: sizes.avatarLg,
+    borderRadius: sizes.avatarLg / 2,
+    backgroundColor: colors.surface,
   },
-  name: { ...typography.title, fontSize: 20, marginTop: spacing.sm },
-  verified: { ...typography.helper, color: colors.success, marginTop: 2 },
+  avatarEmpty: { alignItems: 'center', justifyContent: 'center' },
+  name: { ...typography.sectionTitle, marginTop: spacing.sm },
+  verified: { flexDirection: 'row', alignItems: 'center', marginTop: spacing.xxs },
+  verifiedText: { ...typography.caption, marginLeft: spacing.xs },
   switch: {
     flexDirection: 'row',
     backgroundColor: colors.surface,
     borderRadius: radius.md,
-    padding: 4,
+    padding: spacing.xs,
   },
   switchOption: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 10,
+    justifyContent: 'center',
+    minHeight: sizes.controlCompact,
     borderRadius: radius.sm,
   },
+  // Selecionado: cartão branco com texto em Medium. Não selecionado: cinza
+  // de apoio. A diferença é de peso e de fundo, não de cor.
   switchOptionActive: { backgroundColor: colors.background },
-  switchOptionDisabled: { opacity: 0.4 },
-  switchLabel: { ...typography.body, color: colors.textMuted, fontWeight: '600' },
-  switchLabelActive: { color: colors.primary, fontWeight: '700' },
-  roleHint: { ...typography.helper, marginTop: spacing.sm },
+  switchLabel: { ...typography.body, color: colors.textSecondary },
+  switchLabelActive: { ...typography.bodyStrong },
+  switchLabelDisabled: { color: colors.textDisabled },
+  roleHint: { ...typography.caption, marginTop: spacing.sm },
   menu: { marginTop: spacing.lg },
 });

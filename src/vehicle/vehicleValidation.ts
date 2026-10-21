@@ -72,7 +72,7 @@ export function validateVehicleForm(vehicle: VehicleDraft): FieldError[] {
   if (makeModel.length === 0) {
     errors.push({ field: 'makeModel', message: 'Informe a marca e o modelo.' });
   } else if (makeModel.length < 2) {
-    errors.push({ field: 'makeModel', message: 'Marca e modelo muito curtos.' });
+    errors.push({ field: 'makeModel', message: 'Marca e modelo muito curtos. Ex.: Honda Fit.' });
   }
 
   if (!vehicle.color || vehicle.color.trim().length === 0) {

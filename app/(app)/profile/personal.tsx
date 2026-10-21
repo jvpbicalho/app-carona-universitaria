@@ -2,8 +2,7 @@ import React from 'react';
 import { router } from 'expo-router';
 
 import { AuthScreen } from '@/components/AuthScreen';
-import { SplashGate } from '@/components/SplashGate';
-import { ErrorState } from '@/components/StateViews';
+import { ErrorState, FormSkeleton } from '@/components/StateViews';
 import { useProfile } from '@/profile/ProfileContext';
 import { ProfileForm } from '@/profile/ProfileForm';
 
@@ -11,11 +10,17 @@ import { ProfileForm } from '@/profile/ProfileForm';
 export default function PersonalDataScreen() {
   const { profile, loading, error, reload } = useProfile();
 
-  if (loading) return <SplashGate />;
+  if (loading) {
+    return (
+      <AuthScreen title="Dados pessoais" back backFallback="/profile">
+        <FormSkeleton fields={4} />
+      </AuthScreen>
+    );
+  }
 
   if (error || !profile) {
     return (
-      <AuthScreen title="Dados pessoais">
+      <AuthScreen title="Dados pessoais" back backFallback="/profile">
         <ErrorState
           message={error ?? 'Não foi possível carregar seu perfil.'}
           onRetry={() => void reload()}
@@ -25,7 +30,12 @@ export default function PersonalDataScreen() {
   }
 
   return (
-    <AuthScreen title="Dados pessoais" subtitle="Essas informações ficam visíveis para quem viaja com você.">
+    <AuthScreen
+      title="Dados pessoais"
+      subtitle="Essas informações ficam visíveis para quem viaja com você."
+      back
+      backFallback="/profile"
+    >
       <ProfileForm
         profile={profile}
         mode="edit"

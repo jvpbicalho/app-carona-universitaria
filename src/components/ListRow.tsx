@@ -1,28 +1,24 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, spacing, typography } from '@/theme/tokens';
+import { Icon } from '@/components/Icon';
+import { colors, sizes, spacing, typography } from '@/theme/tokens';
 
 type Props = {
   label: string;
-  /** Texto à direita, antes da seta (ex.: "★ 4,8" ou "Honda Fit"). */
+  /** Texto à direita, antes da seta (ex.: "Honda Fit"). Comece com maiúscula. */
   value?: string | null;
   onPress?: () => void;
-  /** Marca visualmente itens que exigem atenção, como perfil incompleto. */
+  /**
+   * Marca itens que exigem atenção, como perfil incompleto. A bolinha é só
+   * reforço: o `value` precisa dizer em texto o que falta.
+   */
   attention?: boolean;
   disabled?: boolean;
-  danger?: boolean;
 };
 
 /** Linha de menu do wireframe 2.2 ("Dados pessoais ›", "Meu veículo ›"). */
-export function ListRow({
-  label,
-  value,
-  onPress,
-  attention = false,
-  disabled = false,
-  danger = false,
-}: Props) {
+export function ListRow({ label, value, onPress, attention = false, disabled = false }: Props) {
   return (
     <Pressable
       onPress={onPress}
@@ -30,22 +26,25 @@ export function ListRow({
       accessibilityRole="button"
       accessibilityLabel={value ? `${label}: ${value}` : label}
       accessibilityState={{ disabled }}
-      style={({ pressed }) => [
-        styles.row,
-        pressed && !disabled && styles.rowPressed,
-        disabled && styles.rowDisabled,
-      ]}
+      style={({ pressed }) => [styles.row, pressed && !disabled && styles.rowPressed]}
     >
-      <Text style={[styles.label, danger && styles.labelDanger]}>{label}</Text>
+      <Text style={[typography.body, styles.label, disabled && styles.textDisabled]}>{label}</Text>
 
       <View style={styles.right}>
-        {attention ? <View style={styles.dot} accessibilityLabel="Requer atenção" /> : null}
+        {attention ? <View style={styles.dot} /> : null}
         {value ? (
-          <Text style={styles.value} numberOfLines={1}>
+          <Text
+            style={[attention ? typography.captionStrong : typography.caption, styles.value, disabled && styles.textDisabled]}
+            numberOfLines={1}
+          >
             {value}
           </Text>
         ) : null}
-        {onPress ? <Text style={styles.chevron}>›</Text> : null}
+        {onPress && !disabled ? (
+          <View style={styles.chevron}>
+            <Icon name="chevron-right" size={sizes.iconSm} color={colors.iconInactive} />
+          </View>
+        ) : null}
       </View>
     </Pressable>
   );
@@ -56,23 +55,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    minHeight: 54,
+    minHeight: sizes.row,
     paddingHorizontal: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.surface,
+    borderBottomWidth: sizes.hairline,
+    borderBottomColor: colors.divider,
   },
   rowPressed: { backgroundColor: colors.surface },
-  rowDisabled: { opacity: 0.5 },
-  label: { ...typography.body, flexShrink: 1 },
-  labelDanger: { color: colors.danger },
+  label: { flexShrink: 1 },
+  textDisabled: { color: colors.textDisabled },
   right: { flexDirection: 'row', alignItems: 'center', marginLeft: spacing.sm },
-  value: { ...typography.helper, maxWidth: 150 },
-  chevron: { color: colors.textMuted, fontSize: 22, marginLeft: spacing.sm },
+  value: { maxWidth: 170 },
+  chevron: { marginLeft: spacing.sm },
   dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.warning,
+    width: sizes.dot,
+    height: sizes.dot,
+    borderRadius: sizes.dot / 2,
+    backgroundColor: colors.text,
     marginRight: spacing.sm,
   },
 });

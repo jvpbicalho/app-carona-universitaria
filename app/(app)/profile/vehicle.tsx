@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 
@@ -6,7 +6,7 @@ import { AuthScreen } from '@/components/AuthScreen';
 import { Banner } from '@/components/Banner';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { Select } from '@/components/Select';
-import { SplashGate } from '@/components/SplashGate';
+import { FormSkeleton } from '@/components/StateViews';
 import { Stepper } from '@/components/Stepper';
 import { TextField } from '@/components/TextField';
 import { useProfile } from '@/profile/ProfileContext';
@@ -43,7 +43,26 @@ export default function VehicleScreen() {
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  if (loading) return <SplashGate />;
+  // Abrindo esta tela direto (na web: recarregar a página ou link), o perfil
+  // ainda está carregando quando os useState acima rodam, e os campos
+  // nasciam vazios mesmo com veículo salvo. Preenche uma vez quando chegar.
+  const [prefilled, setPrefilled] = useState(Boolean(vehicle));
+  useEffect(() => {
+    if (prefilled || !vehicle) return;
+    setMakeModel(vehicle.makeModel);
+    setColor(vehicle.color);
+    setPlate(formatPlate(vehicle.plate));
+    setSeats(vehicle.seats);
+    setPrefilled(true);
+  }, [vehicle, prefilled]);
+
+  if (loading) {
+    return (
+      <AuthScreen title="Meu veículo" back backFallback="/profile">
+        <FormSkeleton fields={4} />
+      </AuthScreen>
+    );
+  }
 
   async function handleSubmit() {
     if (!profile) return;
@@ -74,6 +93,8 @@ export default function VehicleScreen() {
     <AuthScreen
       title="Meu veículo"
       subtitle="Os passageiros usam esses dados para reconhecer seu carro no ponto de encontro."
+      back
+      backFallback="/profile"
     >
       {formError ? <Banner tone="error" message={formError} /> : null}
 
@@ -89,7 +110,7 @@ export default function VehicleScreen() {
         value={makeModel}
         onChangeText={setMakeModel}
         error={errorFor(errors, 'makeModel')}
-        placeholder="ex: Honda Fit"
+        placeholder="Ex.: Honda Fit"
         autoCapitalize="words"
         editable={!saving}
       />
@@ -111,7 +132,7 @@ export default function VehicleScreen() {
         value={plate}
         onChangeText={(text) => setPlate(formatPlate(text))}
         error={errorFor(errors, 'plate')}
-        helper="Mercosul (ABC-1D23) ou padrão antigo (ABC-1234)"
+        helper="Mercosul (ABC-1D23) ou padrão antigo (ABC-1234)."
         placeholder="ABC-1D23"
         autoCapitalize="characters"
         autoCorrect={false}
@@ -153,5 +174,5 @@ export default function VehicleScreen() {
 
 const styles = StyleSheet.create({
   action: { marginTop: spacing.sm },
-  note: { ...typography.helper, marginTop: spacing.md },
+  note: { ...typography.caption, marginTop: spacing.md },
 });
