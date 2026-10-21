@@ -33,6 +33,7 @@ export default function ProfileScreen() {
     canDrive,
     activeRole,
     setActiveRole,
+    isAdmin,
   } = useProfile();
 
   if (loading) {
@@ -121,10 +122,15 @@ export default function ProfileScreen() {
             onPress={() => router.push('/profile/vehicle')}
           />
           <ListRow label="Minhas caronas" onPress={() => router.push('/routes')} />
+          <ListRow label="Minhas solicitações" onPress={() => router.push('/requests')} />
           {/* EP07 e EP09 entram nos próximos sprints; as linhas ficam visíveis
               mas desabilitadas para não prometer o que ainda não existe. */}
           <ListRow label="Avaliações recebidas" value="Em breve" disabled />
           <ListRow label="Histórico de viagens" value="Em breve" disabled />
+          {/* Só para admin (EP04): a permissão real é do banco; aqui só a entrada. */}
+          {isAdmin ? (
+            <ListRow label="Regras da busca" value="Admin" onPress={() => router.push('/admin/matching')} />
+          ) : null}
           {/* Sair não é destrutivo (dá para entrar de novo): sem vermelho. */}
           <ListRow label="Sair da conta" onPress={() => void signOut()} />
         </View>

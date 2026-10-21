@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
+import { fetchIsAdmin } from '@/admin/matchingApi';
 import { useAuth } from '@/auth/AuthContext';
 import { fetchProfile, updateActiveRole, type Profile } from '@/profile/profileApi';
 import { profileIncompleteWarning } from '@/profile/profileValidation';
@@ -27,6 +28,12 @@ type ProfileContextValue = {
   canDrive: boolean;
   activeRole: ActiveRole;
   setActiveRole: (role: ActiveRole) => Promise<void>;
+
+  /**
+   * Administrador (tabela app_admins). Só decide o que MOSTRAR — a permissão
+   * de verdade é a RLS e a RPC no banco.
+   */
+  isAdmin: boolean;
 };
 
 const ProfileContext = createContext<ProfileContextValue | null>(null);
@@ -37,6 +44,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,6 +52,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     if (!userId) {
       setProfile(null);
       setVehicle(null);
+      setIsAdmin(false);
       setLoading(false);
       return;
     }
@@ -51,13 +60,16 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     setError(null);
     try {
-      // Em paralelo: uma não depende da outra.
-      const [nextProfile, nextVehicle] = await Promise.all([
+      // Em paralelo: uma não depende da outra. Falhar ao saber se é admin não
+      // derruba o perfil — só esconde a tela de admin.
+      const [nextProfile, nextVehicle, nextIsAdmin] = await Promise.all([
         fetchProfile(userId),
         fetchVehicle(userId),
+        fetchIsAdmin(userId).catch(() => false),
       ]);
       setProfile(nextProfile);
       setVehicle(nextVehicle);
+      setIsAdmin(nextIsAdmin);
     } catch {
       setError('Não foi possível carregar seu perfil.');
     } finally {
@@ -115,8 +127,9 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       canDrive,
       activeRole,
       setActiveRole,
+      isAdmin,
     }),
-    [profile, vehicle, loading, error, load, incompleteWarning, canDrive, activeRole, setActiveRole],
+    [profile, vehicle, loading, error, load, incompleteWarning, canDrive, activeRole, setActiveRole, isAdmin],
   );
 
   return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>;

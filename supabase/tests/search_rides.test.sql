@@ -10,7 +10,8 @@
 -- Sem erro = passou. Qualquer asserção falha com "FALHOU: ...".
 --
 -- Limites assumidos (search_limits): raio 2 km, janela ±30 min, teto 120 min,
--- pesos iguais. Se mudarem, as penalidades esperadas abaixo mudam junto.
+-- pesos iguais — fixados no início do teste (matching_settings), para o teste
+-- não depender do que o admin configurou no banco.
 
 begin;
 
@@ -43,6 +44,10 @@ declare
   v_cancelled uuid; v_full uuid; v_own uuid; v_past uuid;
 begin
   -- ---------------------------------------------------------------- fixtures
+  -- Desde a migration matching_settings, raio e janela são configuráveis pelo
+  -- admin. Este teste fixa os valores que as penalidades abaixo assumem.
+  update public.matching_settings set radius_km = 2.0, time_window_minutes = 30 where id;
+
   insert into auth.users (instance_id, id, aud, role, email, encrypted_password,
                           email_confirmed_at, created_at, updated_at,
                           raw_app_meta_data, raw_user_meta_data,
@@ -127,12 +132,14 @@ begin
   returning id into v_cancelled;
   update public.routes set status = 'cancelada', cancellation_reason = 'teste' where id = v_cancelled;
 
-  -- Lotada (o que o EP05 fará ao confirmar a última vaga).
+  -- Lotada: 1 vaga e 1 solicitação aceita (vaga derivada, EP05). Nasce
+  -- pendente pelo trigger e vira aceita aqui, como postgres.
   insert into public.routes (driver_id, vehicle_id, origin_label, origin_latitude, origin_longitude,
                              destination_label, destination_latitude, destination_longitude, departure_at, seats_total)
-  values (v_driver, v_vehicle_d, 'lotada', -23.5614, -46.6558, 'PUC', -23.53796, -46.67124, v_t, 2)
+  values (v_driver, v_vehicle_d, 'lotada', -23.5614, -46.6558, 'PUC', -23.53796, -46.67124, v_t, 1)
   returning id into v_full;
-  update public.routes set seats_taken = 2 where id = v_full;
+  insert into public.ride_requests (route_id, passenger_id) values (v_full, v_passenger);
+  update public.ride_requests set status = 'aceita', decided_at = now() where route_id = v_full;
 
   -- Do próprio passageiro, perfeita em tudo.
   insert into public.routes (driver_id, vehicle_id, origin_label, origin_latitude, origin_longitude,

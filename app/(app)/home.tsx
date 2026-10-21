@@ -99,6 +99,7 @@ export default function HomeScreen() {
           <View style={styles.menu}>
             <ListRow label="Meu perfil" onPress={() => router.push('/profile')} />
             <ListRow label="Minhas caronas" onPress={() => router.push('/routes')} />
+            <ListRow label="Minhas solicitações" onPress={() => router.push('/requests')} />
             <ListRow
               label="Meu veículo"
               value={vehicle ? vehicle.plate : 'Não cadastrado'}

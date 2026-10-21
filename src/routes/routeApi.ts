@@ -203,8 +203,8 @@ export type ConfirmedPassenger = {
 };
 
 /**
- * Passageiros com vaga confirmada — os que serão avisados de uma edição ou
- * cancelamento. Hoje a lista é sempre vazia: quem confirma vaga é o EP05.
+ * Passageiros com vaga aceita — os que serão avisados de uma edição ou
+ * cancelamento (status `aceita` em ride_requests, EP05).
  *
  * Duas consultas em vez de embed porque public_profiles é view, e o PostgREST
  * não infere relacionamento por FK através dela.
@@ -214,7 +214,7 @@ export async function fetchConfirmedPassengers(routeId: string): Promise<Confirm
     .from('ride_requests')
     .select('id, passenger_id')
     .eq('route_id', routeId)
-    .eq('status', 'confirmada');
+    .eq('status', 'aceita');
 
   if (error) throw error;
   if (!requests || requests.length === 0) return [];

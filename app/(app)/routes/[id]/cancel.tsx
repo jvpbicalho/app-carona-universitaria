@@ -36,7 +36,7 @@ function errorFor(errors: FieldError[], field: string): string | null {
  */
 export default function CancelRouteScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { route, passengers, loading, error, notFound, reload } = useRouteDetail(id);
+  const { route, passengers, pending, loading, error, notFound, reload } = useRouteDetail(id);
 
   const [reason, setReason] = useState<CancellationReasonCode | null>(null);
   const [otherText, setOtherText] = useState('');
@@ -116,7 +116,15 @@ export default function CancelRouteScreen() {
   return (
     <AuthScreen
       title="Cancelar esta carona?"
-      subtitle={`${affectedPassengersText(passengers.length, 'com o motivo')} A ação não pode ser desfeita.`}
+      subtitle={
+        `${affectedPassengersText(passengers.length, 'com o motivo')}` +
+        (pending.length === 1
+          ? ' A solicitação pendente será encerrada.'
+          : pending.length > 1
+            ? ` As ${pending.length} solicitações pendentes serão encerradas.`
+            : '') +
+        ' A ação não pode ser desfeita.'
+      }
       back
       backFallback="/routes"
     >
@@ -138,7 +146,7 @@ export default function CancelRouteScreen() {
           setErrors([]);
         }}
         error={errorFor(errors, 'reason')}
-        helper="Os passageiros confirmados recebem este motivo no aviso."
+        helper="Os passageiros com vaga aceita recebem este motivo no aviso."
         disabled={saving}
       />
 

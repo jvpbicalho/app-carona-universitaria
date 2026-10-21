@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import type { RequestStatus } from '@/requests/requestStatus';
 import type { GeoPoint } from '@/routes/routeValidation';
 import type { SearchLimits } from '@/search/searchValidation';
 
@@ -16,9 +17,8 @@ export type RideResult = {
   /** Positivo = sai depois do horário desejado. */
   timeDifferenceMinutes: number;
   /**
-   * Vagas livres (seats_total - seats_taken). Ponto de extensão do EP05:
-   * quando a confirmação de vaga mantiver seats_taken, isto passa a refletir
-   * as confirmações sem mudar nada no app.
+   * Vagas livres = vagas da carona − solicitações aceitas (public.seats_available,
+   * EP05). Pendentes não descontam.
    */
   seatsAvailable: number;
   seatsTotal: number;
@@ -28,6 +28,8 @@ export type RideResult = {
   driverCourse: string | null;
   vehicleMakeModel: string | null;
   vehicleColor: string | null;
+  /** Pedido mais recente de quem busca nesta carona; null = nunca pediu. */
+  myRequestStatus: RequestStatus | null;
 };
 
 type RideRow = {
@@ -46,6 +48,7 @@ type RideRow = {
   driver_course: string | null;
   vehicle_make_model: string | null;
   vehicle_color: string | null;
+  my_request_status: RequestStatus | null;
 };
 
 function toRide(row: RideRow): RideResult {
@@ -65,6 +68,7 @@ function toRide(row: RideRow): RideResult {
     driverCourse: row.driver_course,
     vehicleMakeModel: row.vehicle_make_model,
     vehicleColor: row.vehicle_color,
+    myRequestStatus: row.my_request_status,
   };
 }
 
@@ -94,16 +98,13 @@ export async function searchRides(params: SearchParams): Promise<RideResult[]> {
   return ((data ?? []) as RideRow[]).map(toRide);
 }
 
-let limitsCache: SearchLimits | null = null;
-
 /**
- * Limites da busca, lidos do lugar único no banco (search_limits). O app não
- * tem cópia deles: quando a próxima história os tornar configuráveis, a tela
- * acompanha sozinha. Cache por sessão do app — mudam raramente.
+ * Limites da busca, lidos do lugar único no banco (search_limits →
+ * matching_settings, configurável pelo admin). Sem cache: cada busca relê,
+ * então uma mudança do admin vale já na busca seguinte. É uma chamada leve,
+ * feita uma vez por tela de resultados.
  */
 export async function fetchSearchLimits(): Promise<SearchLimits> {
-  if (limitsCache) return limitsCache;
-
   const { data, error } = await supabase.rpc('search_limits');
   if (error) throw error;
 
@@ -113,10 +114,9 @@ export async function fetchSearchLimits(): Promise<SearchLimits> {
     max_time_window_minutes: number;
   };
 
-  limitsCache = {
+  return {
     radiusKm: row.radius_km,
     timeWindowMinutes: row.time_window_minutes,
     maxTimeWindowMinutes: row.max_time_window_minutes,
   };
-  return limitsCache;
 }

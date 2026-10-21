@@ -5,11 +5,17 @@ import { router, useLocalSearchParams } from 'expo-router';
 
 import { screenLayout } from '@/components/AuthScreen';
 import { initialsOf } from '@/components/AvatarPicker';
+import { Banner } from '@/components/Banner';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { RouteLegs } from '@/components/RouteLegs';
 import { goBack, ScreenHeader } from '@/components/ScreenHeader';
 import { EmptyState, ErrorState, SkeletonList } from '@/components/StateViews';
+import { TextLink } from '@/components/TextLink';
 import { avatarPublicUrl } from '@/profile/profileApi';
+import { requestSeat } from '@/requests/requestApi';
+import { describeRequestError, REFRESH_AFTER } from '@/requests/requestErrors';
+import { isActiveRequest, requestButtonLabel } from '@/requests/requestStatus';
 import { formatDeparture, type GeoPoint } from '@/routes/routeValidation';
 import { fetchSearchLimits, searchRides, type RideResult } from '@/search/searchApi';
 import { describeSearchError } from '@/search/searchErrors';
@@ -44,8 +50,12 @@ function toPoint(label?: string, lat?: string, lng?: string): GeoPoint | null {
  *
  * A ordem vem pronta do banco (search_rides): relevância = proximidade das
  * origens e dos destinos + diferença de horário. Sem círculo de score: é
- * Fase 2 (wireframe 4.3). Tocar numa carona para ver detalhe e pedir vaga é
- * do EP05, por isso o cartão ainda não é clicável.
+ * Fase 2 (wireframe 4.3).
+ *
+ * EP05 — "Solicitar vaga" fica no próprio cartão (contorno: são vários
+ * cartões, e o manual reserva o preto cheio para uma ação por tela). A
+ * confirmação é um diálogo que funciona na web e no celular. Depois de pedir,
+ * o botão vira "Solicitação pendente" e fica desabilitado.
  */
 export default function SearchResultsScreen() {
   const params = useLocalSearchParams<Params>();
@@ -68,6 +78,10 @@ export default function SearchResultsScreen() {
   const [rides, setRides] = useState<RideResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [confirming, setConfirming] = useState<RideResult | null>(null);
+  const [requesting, setRequesting] = useState(false);
+  const [feedback, setFeedback] = useState<{ tone: 'success' | 'error'; message: string } | null>(null);
 
   const invalid = !origin || !destination || !desiredAt;
 
@@ -99,6 +113,32 @@ export default function SearchResultsScreen() {
     setStarted(true);
     void run(null);
   }, [started, invalid, run]);
+
+  async function confirmRequest() {
+    const ride = confirming;
+    if (!ride) return;
+    setConfirming(null);
+    setRequesting(true);
+    setFeedback(null);
+    try {
+      const status = await requestSeat(ride.routeId);
+      setRides((prev) => prev.map((r) => (r.routeId === ride.routeId ? { ...r, myRequestStatus: status } : r)));
+      setFeedback({
+        tone: 'success',
+        message: 'Solicitação enviada. A vaga só fica sua quando o motorista aceitar.',
+      });
+    } catch (err) {
+      const dbError = err as { message?: string; hint?: string | null };
+      setFeedback({ tone: 'error', message: describeRequestError(dbError) });
+      // Sem vaga, cancelada ou partida: a lista mudou; busca de novo.
+      if (dbError.hint && REFRESH_AFTER.has(dbError.hint)) void run(windowMinutes);
+      if (dbError.hint === 'already_requested') {
+        setRides((prev) => prev.map((r) => (r.routeId === ride.routeId ? { ...r, myRequestStatus: 'pendente' } : r)));
+      }
+    } finally {
+      setRequesting(false);
+    }
+  }
 
   if (invalid) {
     return (
@@ -137,6 +177,14 @@ export default function SearchResultsScreen() {
           {!loading && rides.length > 1 ? (
             <Text style={styles.orderHint}>Mais perto e mais no horário aparecem primeiro.</Text>
           ) : null}
+          {feedback ? (
+            <View style={styles.feedback}>
+              <Banner tone={feedback.tone} message={feedback.message} />
+              {feedback.tone === 'success' ? (
+                <TextLink label="Ver minhas solicitações" onPress={() => router.push('/requests')} />
+              ) : null}
+            </View>
+          ) : null}
         </View>
 
         {loading ? (
@@ -170,15 +218,32 @@ export default function SearchResultsScreen() {
             data={rides}
             keyExtractor={(item) => item.routeId}
             contentContainerStyle={styles.body}
-            renderItem={({ item }) => <RideCard ride={item} />}
+            renderItem={({ item }) => (
+              <RideCard ride={item} busy={requesting} onRequest={() => setConfirming(item)} />
+            )}
           />
         )}
       </View>
+
+      <ConfirmDialog
+        visible={confirming !== null}
+        title="Solicitar vaga?"
+        message={
+          confirming
+            ? `${formatDeparture(confirming.departureAt)}, com ${confirming.driverName ?? 'o motorista'}. ` +
+              'O motorista precisa aceitar; até lá, a vaga não fica reservada.'
+            : undefined
+        }
+        actions={[{ label: 'Solicitar vaga', onPress: () => void confirmRequest(), variant: 'primary' }]}
+        onDismiss={() => setConfirming(null)}
+      />
     </SafeAreaView>
   );
 }
 
-function RideCard({ ride }: { ride: RideResult }) {
+function RideCard({ ride, busy, onRequest }: { ride: RideResult; busy: boolean; onRequest: () => void }) {
+  // Pedido ativo ou recusado: o botão vira o estado, desabilitado.
+  const alreadyAsked = isActiveRequest(ride.myRequestStatus) || ride.myRequestStatus === 'recusada';
   const photo = avatarPublicUrl(ride.driverAvatarUrl);
   const seatsLabel = `${ride.seatsAvailable} ${ride.seatsAvailable === 1 ? 'vaga' : 'vagas'}`;
 
@@ -224,6 +289,16 @@ function RideCard({ ride }: { ride: RideResult }) {
       </View>
 
       {ride.notes ? <Text style={styles.notes}>{ride.notes}</Text> : null}
+
+      <View style={styles.cardAction}>
+        <PrimaryButton
+          label={requestButtonLabel(ride.myRequestStatus)}
+          variant="outline"
+          onPress={onRequest}
+          disabled={alreadyAsked || busy}
+          accessibilityHint={alreadyAsked ? undefined : 'Abre a confirmação do pedido de vaga'}
+        />
+      </View>
     </View>
   );
 }
@@ -234,6 +309,8 @@ const styles = StyleSheet.create({
   orderHint: { ...typography.caption, marginTop: spacing.sm },
   body: { paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
   secondaryAction: { marginTop: spacing.md },
+  feedback: { marginTop: spacing.md },
+  cardAction: { marginTop: spacing.md },
   card: {
     borderWidth: sizes.hairline,
     borderColor: colors.divider,

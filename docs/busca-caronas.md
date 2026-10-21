@@ -11,8 +11,9 @@ horário)** e **tempo de resposta menor que 3 segundos**.
 | Parte | Arquivo |
 |---|---|
 | Busca (filtro + ordenação) | `supabase/migrations/20260930222538_search_rides.sql` — função `public.search_rides` |
-| **Limites (lugar único)** | a mesma migration — função `public.search_limits()` |
-| Teste do SQL | `supabase/tests/search_rides.test.sql` |
+| **Limites (lugar único)** | `public.search_limits()`, que lê `public.matching_settings` (migration `20261021230424_matching_settings.sql`) |
+| Tela do admin | `app/(app)/admin/matching.tsx` + `src/admin/` |
+| Teste do SQL | `supabase/tests/search_rides.test.sql` e `supabase/tests/matching_settings.test.sql` |
 | Regras do app (validação, "ampliar", formatação) | `src/search/searchValidation.ts` |
 | Chamada da RPC | `src/search/searchApi.ts` |
 | Telas | `app/(app)/search/index.tsx` (4.1) e `app/(app)/search/results.tsx` (4.2 e 4.6) |
@@ -73,9 +74,27 @@ dos valores no TypeScript.
 | Teto da janela ("Ampliar") | **± 120 min** | — |
 | Pesos | 1/3 cada | — |
 
-**Para a próxima história** (tolerâncias configuráveis pelo admin): basta
-trocar o corpo de `search_limits()` por uma leitura da tabela de parâmetros, e
-`immutable` por `stable`. A busca e as telas não mudam.
+### Configurável pelo admin (história "Regras de tolerância", 21/10/2026)
+
+Raio e janela moram em `public.matching_settings` (linha única) e
+`search_limits()` lê de lá — `stable`, sem cache no app: **a busca seguinte já
+usa o valor novo, sem redeploy**. Os valores iniciais são os mesmos de antes
+(2 km, ±30 min).
+
+- **Faixas aceitas** (constraint no banco, espelhadas em
+  `src/admin/matchingValidation.ts`): raio **0,5–50 km**, janela **5–240 min**.
+- **Teto do "Ampliar"** = 4 × janela, até 240 min (com 30 dá 120, o valor
+  anterior). O admin edita só dois campos; o teto acompanha.
+- **Quem altera**: só administradores (`public.app_admins`). Leitura para
+  qualquer autenticado. A escrita é pela RPC `update_matching_settings`, que
+  recusa não-admin com erro explícito (um UPDATE direto de não-admin passaria
+  pela RLS sem efeito e sem erro). `updated_by`/`updated_at` são preenchidos
+  pelo banco.
+- **Primeiro admin**: nenhum. Para promover:
+  `insert into public.app_admins (user_id) select id from auth.users where email = '…';`
+- O limite é inclusivo (rota a exatamente R km entra), até a precisão do
+  ponto flutuante do PostGIS: a 3000 m exatos, `st_dwithin(…, 3000)` pode dar
+  falso por erro sub-milimétrico. Irrelevante na prática; documentado no teste.
 
 ## Vagas — ponto de extensão do EP05
 
@@ -127,7 +146,6 @@ todas as origens num mesmo ponto).
 
 ## Fora desta entrega
 
-- Tolerâncias configuráveis pelo admin (próxima história).
 - Detalhe da carona e **solicitar vaga** (4.5 / EP05): o cartão do resultado
   ainda não é clicável.
 - Score de compatibilidade e sua explicação (4.3), filtros (4.4) — Fase 2.

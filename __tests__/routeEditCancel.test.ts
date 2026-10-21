@@ -204,7 +204,7 @@ describe('describeRouteError', () => {
     ['route_not_editable', 'não pode mais ser alterada'],
     ['route_already_departed', 'já partiu'],
     ['cancel_with_changes', 'não os dois'],
-    ['seats_taken_managed', 'solicitação é confirmada'],
+    ['seats_below_accepted', 'vagas aceitas'],
     ['departure_in_past', 'passado'],
     ['profile_incomplete', 'Complete seu perfil'],
   ])('traduz o hint %s', (hint, trecho) => {

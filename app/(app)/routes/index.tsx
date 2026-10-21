@@ -9,6 +9,7 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { EmptyState, ErrorState, SkeletonList } from '@/components/StateViews';
 import { useProfile } from '@/profile/ProfileContext';
+import { fetchPendingCounts } from '@/requests/requestApi';
 import { fetchMyRoutes, type Route } from '@/routes/routeApi';
 import { formatDeparture } from '@/routes/routeValidation';
 import { RouteLegs } from '@/components/RouteLegs';
@@ -24,6 +25,7 @@ export default function MyRoutesScreen() {
   const { profile, vehicle } = useProfile();
 
   const [routes, setRoutes] = useState<Route[]>([]);
+  const [pendingCounts, setPendingCounts] = useState<Map<string, number>>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,7 +33,11 @@ export default function MyRoutesScreen() {
     if (!profile) return;
     setError(null);
     try {
-      setRoutes(await fetchMyRoutes(profile.id));
+      const nextRoutes = await fetchMyRoutes(profile.id);
+      setRoutes(nextRoutes);
+      // Quantos pedidos esperam resposta em cada carona (EP05). Falhar aqui não
+      // derruba a lista: só some o aviso.
+      setPendingCounts(await fetchPendingCounts(nextRoutes.map((r) => r.id)).catch(() => new Map()));
     } catch {
       setError('Não foi possível carregar suas caronas. Verifique sua conexão.');
     } finally {
@@ -86,7 +92,7 @@ export default function MyRoutesScreen() {
             data={routes}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.body}
-            renderItem={({ item }) => <RouteCard route={item} />}
+            renderItem={({ item }) => <RouteCard route={item} pendingCount={pendingCounts.get(item.id) ?? 0} />}
           />
         )}
 
@@ -100,7 +106,7 @@ export default function MyRoutesScreen() {
   );
 }
 
-function RouteCard({ route }: { route: Route }) {
+function RouteCard({ route, pendingCount }: { route: Route; pendingCount: number }) {
   const full = route.seatsAvailable === 0;
   const cancelled = route.status === 'cancelada';
 
@@ -127,6 +133,15 @@ function RouteCard({ route }: { route: Route }) {
         )}
         <Icon name="chevron-right" size={sizes.iconSm} color={colors.iconInactive} />
       </View>
+
+      {pendingCount > 0 && !cancelled ? (
+        <View style={styles.pending}>
+          <View style={styles.dot} />
+          <Text style={typography.captionStrong}>
+            {pendingCount === 1 ? '1 solicitação esperando resposta' : `${pendingCount} solicitações esperando resposta`}
+          </Text>
+        </View>
+      ) : null}
 
       {route.notes ? <Text style={styles.notes}>{route.notes}</Text> : null}
     </Pressable>
@@ -165,4 +180,12 @@ const styles = StyleSheet.create({
   },
   badgeStrong: { ...typography.captionStrong },
   notes: { ...typography.caption, marginTop: spacing.sm },
+  pending: { flexDirection: 'row', alignItems: 'center', marginTop: spacing.sm },
+  dot: {
+    width: sizes.dot,
+    height: sizes.dot,
+    borderRadius: sizes.dot / 2,
+    backgroundColor: colors.text,
+    marginRight: spacing.sm,
+  },
 });

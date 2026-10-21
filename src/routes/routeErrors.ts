@@ -20,7 +20,7 @@ const BY_HINT: Record<string, string> = {
   route_already_departed: 'Esta carona já partiu e não pode mais ser alterada.',
   cancel_with_changes: 'Cancele ou edite a carona, não os dois ao mesmo tempo.',
   status_transition_forbidden: 'Esta carona não pode mais mudar de situação. Volte ao detalhe para ver como ela está.',
-  seats_taken_managed: 'As vagas ocupadas mudam só quando uma solicitação é confirmada.',
+  seats_below_accepted: 'Esta carona já tem vagas aceitas além desse número. Mantenha ao menos as aceitas.',
 };
 
 export function describeRouteError(

@@ -13,9 +13,9 @@ Projeto da disciplina **Gestão Ágil de Projetos** — PUC-SP, Ciência da
 Computação (Prof. Mário Farah).
 
 > **Status:** Autenticação (EP01), perfil e veículo (EP02), rotas (EP03:
-> publicar, editar e cancelar) e a busca de caronas (EP04) já estão
-> implementados, com o visual do manual de identidade — ver a
-> [documentação](#documentação).
+> publicar, editar e cancelar), busca com tolerâncias configuráveis (EP04) e
+> solicitação de vaga com aceite/recusa (EP05) já estão implementados, com o
+> visual do manual de identidade — ver a [documentação](#documentação).
 
 ---
 
@@ -77,7 +77,7 @@ real (EP06) são os núcleos de maior complexidade técnica do projeto.
 - ✅ **Minhas caronas** — lista das viagens publicadas, com detalhe de cada uma.
 - ✅ **Editar e cancelar carona** — origem, destino, data e horário editáveis;
   cancelamento com motivo obrigatório, preservando a carona no histórico.
-  Passageiros com vaga confirmada recebem aviso na mesma transação da mudança
+  Passageiros com vaga aceita recebem aviso na mesma transação da mudança
   (a entrega em push/tempo real chega com o EP06).
 
 **EP04 — Busca**
@@ -85,10 +85,23 @@ real (EP06) são os núcleos de maior complexidade técnica do projeto.
   Resultados ordenados por relevância (proximidade da origem e do destino +
   diferença de horário), só com caronas ativas, futuras, com vaga e de outros
   motoristas. Estado vazio oferece ampliar a janela de horário.
+- ✅ **Regras de tolerância configuráveis** — raio (0,5–50 km) e janela de
+  horário (5–240 min) numa tabela do banco, editáveis pelo administrador numa
+  tela própria; a busca seguinte já usa os novos valores, sem redeploy.
+
+**EP05 — Solicitação e confirmação de vagas**
+- ✅ **Solicitar vaga** — direto no resultado da busca, com confirmação. Só
+  com vaga disponível; status inicial "pendente". As regras (vaga, rota ativa,
+  pedido duplicado, própria rota) e a concorrência são garantidas no banco.
+- ✅ **Minhas solicitações** — o passageiro acompanha cada pedido e o status.
+- ✅ **Aceitar ou recusar** — o motorista vê nome, foto, curso e campus de
+  quem pediu. Aceitar desconta a vaga na hora (vaga derivada das aceitas, sem
+  contador); recusar pede confirmação e libera o passageiro para outras
+  caronas.
 
 **Próximos**
-- ⏳ Tolerâncias de busca configuráveis (EP04) · solicitação de vaga (EP05) ·
-  notificações em tempo real (EP06)
+- ⏳ Fechar solicitações quando as vagas acabarem (EP05) · notificações em
+  tempo real (EP06) · avaliação mútua (EP07)
 
 ## Como rodar
 
@@ -184,13 +197,17 @@ app/                            rotas (expo-router, file-based)
     routes/[id]/edit.tsx         editar carona
     routes/[id]/cancel.tsx       cancelar carona
     search/index.tsx             buscar carona
-    search/results.tsx           resultados da busca
+    search/results.tsx           resultados da busca + "Solicitar vaga"
+    requests/index.tsx           minhas solicitações (passageiro)
+    admin/matching.tsx           regras da busca (só administrador)
 src/
   auth/                         sessão, validação de domínio, erros em pt-BR
   profile/                      contexto, API, formulário e regras de completude
   vehicle/                      API e regras (placa, vagas)
   routes/                       API e regras (horário, limite de vagas)
   search/                       API e regras da busca de caronas
+  requests/                     solicitação de vaga: API, status, erros
+  admin/                        regras da busca (tela do administrador)
   geocode/                      cliente da busca de endereço
   components/                   campos, botões, diálogo, ícones, estados vazio/erro/carregando
   lib/                          client Supabase e listas de referência
@@ -240,6 +257,8 @@ npx supabase functions deploy geocode
   a passageiros confirmados e o contrato que EP05 e EP06 vão usar.
 - [Buscar caronas](docs/busca-caronas.md) — fórmula de relevância, limites em
   um lugar só, desempenho medido e o ponto de extensão das vagas.
+- [Solicitar vaga e aceitar/recusar](docs/solicitar-vaga.md) — EP05: vaga
+  derivada num lugar só, regras no banco, concorrência, decisões tomadas.
 - [Identidade visual](docs/identidade-visual.md) — como o manual do UniRota
   vira código: tema único, Inter, cores, componentes, desvios pendentes de aval.
 - [Wireframes](docs/wireframes/) — esboços de referência de todos os épicos.
