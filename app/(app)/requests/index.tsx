@@ -84,7 +84,11 @@ function RequestCard({ request }: { request: MyRequest }) {
   const { label, detail } = describeRequest(request);
   // Destaque (Medium + borda escura) só para o que pede atenção: aceita e
   // recusada. Sem cor de status: o rótulo diz o que é.
-  const strong = request.status === 'aceita' || request.status === 'recusada' || request.routeStatus === 'cancelada';
+  const strong =
+    request.status === 'aceita' ||
+    request.status === 'recusada' ||
+    request.status === 'encerrada' ||
+    request.routeStatus === 'cancelada';
 
   return (
     <View style={styles.card} accessibilityLabel={`${label}. ${detail}`}>

@@ -18,8 +18,29 @@ uma solicitação de vaga, para controlar quem embarca no meu veículo.*
 ## Status
 
 `pendente` (inicial) → `aceita` ou `recusada` (decisão do motorista) ·
-`cancelada` (a rota foi cancelada com o pedido ainda pendente). Check
-constraint, não enum: a próxima história só amplia a lista.
+`cancelada` (a rota foi cancelada com o pedido ainda pendente) · `encerrada`
+(as vagas esgotaram antes de o motorista responder). Check constraint, não
+enum: cada história só amplia a lista.
+
+### Vagas esgotadas (28/10/2026)
+
+- **"Vagas esgotadas" não é um status guardado**: é `seats_available = 0`
+  numa rota publicada. A busca já não mostra (filtro `seats_available > 0`),
+  `request_seat` recusa com "As vagas desta carona se esgotaram" (`no_seats`),
+  e as telas do motorista mostram "Vagas esgotadas".
+- **Encerramento das pendentes** num lugar só, `private.close_pending_if_full`
+  (reutiliza `seats_available`), na mesma transação: chamado por
+  `decide_request` depois de um aceite e pelo trigger
+  `routes_close_pending_when_full` quando o motorista reduz `seats_total`.
+- `encerrada`, e não `recusada`: o passageiro vê "Vagas esgotadas — a carona
+  lotou antes de o motorista responder". Não tem `decided_at` (não foi decisão).
+  Decidir um pedido encerrado responde `request_closed_full`.
+- Dois aceites simultâneos para a última vaga (verificado pela API em
+  paralelo): 200 `aceita` + 400 `request_closed_full`.
+- **Reabertura** (fora do escopo): como o estado é derivado, se uma aceita for
+  desfeita no futuro a vaga volta e a rota reaparece na busca sozinha. Os
+  pedidos `encerrada` continuam encerrados, mas `encerrada` não bloqueia pedir
+  de novo.
 
 Os nomes antigos do EP03 (`aguardando`, `confirmada`) foram renomeados — a
 tabela estava vazia. A notificação de rota alterada/cancelada (EP03) passou a
@@ -82,11 +103,10 @@ rotas dele (policy do EP03).
 
 ## Pontos de extensão
 
-- **EP06**: avisar o motorista de pedido novo (`request_seat`) e o passageiro
-  da decisão (`decide_request`) — comentários marcados `PONTO DE EXTENSÃO
-  EP06` nas funções. Nada de notificação foi implementado.
-- **Fechar pedidos quando as vagas acabarem**: comentário `PRÓXIMA HISTÓRIA`
-  em `decide_request`, reutilizando `seats_available`.
+- **EP06 (feito em 28/10)**: avisos de pedido novo e de decisão — ver
+  [notificacoes.md](notificacoes.md).
+- **Avisar quem foi encerrado por vagas esgotadas**: comentário `PONTO DE
+  EXTENSÃO EP06` em `private.close_pending_if_full` (não pedido ainda).
 
 ## Fora destas histórias
 

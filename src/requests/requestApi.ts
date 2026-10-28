@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { parsePendingSummary, type PendingSummary } from '@/requests/pendingBadge';
 import { isRequestStatus, type RequestStatus } from '@/requests/requestStatus';
 
 /**
@@ -74,6 +75,16 @@ export async function fetchPendingRequests(routeId: string): Promise<PendingRequ
       campusName: (profile?.campus_name as string | null) ?? null,
     };
   });
+}
+
+/**
+ * Pendências do motorista para o badge da Home (RPC my_pending_requests_summary):
+ * contadas no banco a partir das solicitações `pendente` nas rotas dele.
+ */
+export async function fetchPendingSummary(): Promise<PendingSummary> {
+  const { data, error } = await supabase.rpc('my_pending_requests_summary');
+  if (error) throw error;
+  return parsePendingSummary(data);
 }
 
 /** Quantos pedidos pendentes cada rota tem (lista "Minhas caronas"). */

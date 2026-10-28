@@ -104,6 +104,9 @@ export default function RouteDetailScreen() {
   const isDriver = profile?.id === route.driverId;
   const modifiable = canModifyRoute(route);
   const cancelled = route.status === 'cancelada';
+  // "Vagas esgotadas" é derivado da vaga (seats_available = 0), não um status
+  // guardado: assim não diverge do que a busca e o banco consideram.
+  const soldOut = !cancelled && route.seatsAvailable <= 0;
 
   return (
     <SafeAreaView style={screenLayout.safe} edges={['top', 'bottom']}>
@@ -129,6 +132,7 @@ export default function RouteDetailScreen() {
             {route.seatsTaken} de {route.seatsTotal}{' '}
             {route.seatsTotal === 1 ? 'vaga ocupada' : 'vagas ocupadas'}
           </Text>
+          {soldOut ? <Text style={styles.soldOut}>Vagas esgotadas · não aparece mais na busca</Text> : null}
           {route.notes ? <Text style={styles.notes}>{route.notes}</Text> : null}
         </View>
 
@@ -304,6 +308,7 @@ const styles = StyleSheet.create({
   departure: { ...typography.sectionTitle, marginBottom: spacing.sm },
   seats: { ...typography.caption, marginTop: spacing.sm },
   notes: { ...typography.caption, marginTop: spacing.sm },
+  soldOut: { ...typography.captionStrong, marginTop: spacing.xs },
   sectionTitle: { ...typography.sectionTitle, marginTop: spacing.lg, marginBottom: spacing.sm },
   emptyPassengers: { ...typography.caption },
   passenger: {

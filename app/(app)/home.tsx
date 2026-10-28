@@ -5,10 +5,14 @@ import { router } from 'expo-router';
 
 import { Banner } from '@/components/Banner';
 import { ListRow } from '@/components/ListRow';
+import { PendingRequestsBadge } from '@/components/PendingRequestsBadge';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { screenLayout } from '@/components/AuthScreen';
 import { ErrorState, SkeletonBlock } from '@/components/StateViews';
+import { unreadLabel } from '@/notifications/notificationModel';
+import { useNotifications } from '@/notifications/NotificationsContext';
 import { useProfile } from '@/profile/ProfileContext';
+import { usePendingRequests } from '@/requests/usePendingRequests';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
 
 /**
@@ -24,6 +28,9 @@ import { colors, radius, spacing, typography } from '@/theme/tokens';
 export default function HomeScreen() {
   const { profile, vehicle, loading, error, reload, incompleteWarning, activeRole } =
     useProfile();
+  const { unread } = useNotifications();
+  // Badge do motorista (EP06): pendências derivadas do banco, em tempo real.
+  const { summary: pending } = usePendingRequests();
 
   if (loading) {
     return (
@@ -59,6 +66,8 @@ export default function HomeScreen() {
           <Text style={[typography.bodySecondary, styles.subtitle]}>
             {isDriverMode ? 'Modo motorista' : 'Modo passageiro'}
           </Text>
+
+          <PendingRequestsBadge summary={pending} />
 
           {/* Critério de aceite: perfil incompleto exibe um aviso. Clicável,
               porque avisar sem oferecer o caminho não resolve nada. */}
@@ -97,6 +106,13 @@ export default function HomeScreen() {
           )}
 
           <View style={styles.menu}>
+            {/* Avisos (EP06): o número de não lidos vai em texto, não só na bolinha. */}
+            <ListRow
+              label="Avisos"
+              value={unread > 0 ? unreadLabel(unread) : null}
+              attention={unread > 0}
+              onPress={() => router.push('/notifications')}
+            />
             <ListRow label="Meu perfil" onPress={() => router.push('/profile')} />
             <ListRow label="Minhas caronas" onPress={() => router.push('/routes')} />
             <ListRow label="Minhas solicitações" onPress={() => router.push('/requests')} />

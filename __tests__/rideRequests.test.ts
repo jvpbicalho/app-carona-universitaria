@@ -18,8 +18,8 @@ const AMANHA = new Date('2026-10-23T08:00:00');
 const ONTEM = new Date('2026-10-21T08:00:00');
 
 describe('status', () => {
-  it('são os quatro da história, espelho da constraint do banco', () => {
-    expect(REQUEST_STATUSES).toEqual(['pendente', 'aceita', 'recusada', 'cancelada']);
+  it('espelham a constraint do banco, com `encerrada` para vagas esgotadas', () => {
+    expect(REQUEST_STATUSES).toEqual(['pendente', 'aceita', 'recusada', 'cancelada', 'encerrada']);
   });
 
   it('isRequestStatus recusa os nomes antigos do EP03', () => {
@@ -69,6 +69,18 @@ describe('describeRequest', () => {
     expect(d.detail).toContain('Busque outra carona');
   });
 
+  it('encerrada diz "vagas esgotadas", e não parece recusa do motorista', () => {
+    const d = describeRequest({ ...base, status: 'encerrada' }, AGORA);
+    expect(d.label).toBe('Vagas esgotadas');
+    expect(d.detail).toContain('lotou antes de o motorista responder');
+    expect(d.label).not.toContain('Recusad');
+  });
+
+  it('encerrada não bloqueia pedir de novo (não é pedido ativo)', () => {
+    expect(isActiveRequest('encerrada')).toBe(false);
+    expect(requestButtonLabel('encerrada')).toBe('Solicitar vaga');
+  });
+
   it('rota cancelada prevalece sobre o status do pedido', () => {
     const d = describeRequest({ status: 'aceita', routeStatus: 'cancelada', departureAt: AMANHA }, AGORA);
     expect(d.label).toBe('Carona cancelada');
@@ -90,7 +102,7 @@ describe('describeRequest', () => {
 describe('describeRequestError', () => {
   it.each([
     ['already_requested', 'já pediu vaga'],
-    ['no_seats', 'não tem mais vagas'],
+    ['no_seats', 'se esgotaram'],
     ['route_not_available', 'cancelada'],
     ['route_departed', 'já partiu'],
     ['own_route', 'é sua'],
@@ -125,6 +137,7 @@ describe('describeDecisionError (motorista aceitando ou recusando)', () => {
   it.each([
     ['not_route_driver', 'Só o motorista desta carona'],
     ['request_not_pending', 'já foi respondida'],
+    ['request_closed_full', 'foi encerrada'],
     ['no_seats', 'continua pendente'],
     ['route_not_available', 'cancelada'],
     ['route_departed', 'já partiu'],

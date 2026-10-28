@@ -1,11 +1,11 @@
 /**
  * Status de uma solicitação de vaga (EP05). Espelha a constraint
- * ride_requests_status_check; a próxima história (fechar pedidos quando a rota
- * lota) só amplia esta lista.
+ * ride_requests_status_check. `encerrada` = as vagas esgotaram antes de o
+ * motorista responder (decisão do sistema, não recusa).
  */
-export type RequestStatus = 'pendente' | 'aceita' | 'recusada' | 'cancelada';
+export type RequestStatus = 'pendente' | 'aceita' | 'recusada' | 'cancelada' | 'encerrada';
 
-export const REQUEST_STATUSES: RequestStatus[] = ['pendente', 'aceita', 'recusada', 'cancelada'];
+export const REQUEST_STATUSES: RequestStatus[] = ['pendente', 'aceita', 'recusada', 'cancelada', 'encerrada'];
 
 export function isRequestStatus(value: unknown): value is RequestStatus {
   return typeof value === 'string' && (REQUEST_STATUSES as string[]).includes(value);
@@ -53,6 +53,12 @@ export function describeRequest(
       return { label: 'Recusada', detail: 'O motorista não aceitou. Busque outra carona.' };
     case 'cancelada':
       return { label: 'Cancelada', detail: 'Esta solicitação foi encerrada.' };
+    case 'encerrada':
+      // Não é recusa: o motorista não decidiu contra o passageiro.
+      return {
+        label: 'Vagas esgotadas',
+        detail: 'A carona lotou antes de o motorista responder. Busque outra carona.',
+      };
   }
 }
 

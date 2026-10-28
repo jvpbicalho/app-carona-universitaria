@@ -5,7 +5,7 @@
  */
 const BY_HINT: Record<string, string> = {
   already_requested: 'Você já pediu vaga nesta carona. Acompanhe em Minhas solicitações.',
-  no_seats: 'Esta carona não tem mais vagas. Busque outra carona.',
+  no_seats: 'As vagas desta carona se esgotaram. Busque outra carona.',
   route_not_available: 'Esta carona foi cancelada pelo motorista. Busque outra carona.',
   route_departed: 'Esta carona já partiu. Busque outro horário.',
   own_route: 'Esta carona é sua. Não dá para pedir vaga nela.',
@@ -37,6 +37,7 @@ export function describeRequestError(error: { message?: string; hint?: string | 
 const DECISION_BY_HINT: Record<string, string> = {
   not_route_driver: 'Só o motorista desta carona pode responder às solicitações.',
   request_not_pending: 'Esta solicitação já foi respondida. A lista foi atualizada.',
+  request_closed_full: 'As vagas se esgotaram e esta solicitação foi encerrada. A lista foi atualizada.',
   no_seats: 'As vagas desta carona acabaram. A solicitação continua pendente; você pode recusá-la.',
   route_not_available: 'Esta carona foi cancelada. Não há mais o que responder.',
   route_departed: 'Esta carona já partiu. Não dá mais para aceitar passageiros.',

@@ -98,10 +98,21 @@ real (EP06) são os núcleos de maior complexidade técnica do projeto.
   quem pediu. Aceitar desconta a vaga na hora (vaga derivada das aceitas, sem
   contador); recusar pede confirmação e libera o passageiro para outras
   caronas.
+- ✅ **Vagas esgotadas** — quando a última vaga é aceita, a carona some da
+  busca, não aceita novos pedidos e as solicitações pendentes são encerradas
+  automaticamente ("vagas esgotadas", não "recusada").
+
+**EP06 — Notificações em tempo real**
+- ✅ **Aviso ao passageiro** — "Sua solicitação foi aceita/recusada" chega ao
+  vivo (Supabase Realtime, WebSocket) em menos de 1 segundo, na web e no
+  celular, e fica guardado em Avisos, com não lidos destacados e "Marcar como
+  lidas".
+- ✅ **Aviso ao motorista** — "Nova solicitação de vaga", ao vivo, e um badge
+  na tela inicial com o número de solicitações pendentes, atualizado em tempo
+  real.
 
 **Próximos**
-- ⏳ Fechar solicitações quando as vagas acabarem (EP05) · notificações em
-  tempo real (EP06) · avaliação mútua (EP07)
+- ⏳ Avaliação mútua (EP07) · push nativo (exige build com EAS)
 
 ## Como rodar
 
@@ -198,6 +209,7 @@ app/                            rotas (expo-router, file-based)
     routes/[id]/cancel.tsx       cancelar carona
     search/index.tsx             buscar carona
     search/results.tsx           resultados da busca + "Solicitar vaga"
+    notifications/index.tsx      avisos (não lidos, marcar como lidas)
     requests/index.tsx           minhas solicitações (passageiro)
     admin/matching.tsx           regras da busca (só administrador)
 src/
@@ -206,7 +218,8 @@ src/
   vehicle/                      API e regras (placa, vagas)
   routes/                       API e regras (horário, limite de vagas)
   search/                       API e regras da busca de caronas
-  requests/                     solicitação de vaga: API, status, erros
+  requests/                     solicitação de vaga: API, status, erros, badge
+  notifications/                avisos: modelo, API, inscrição Realtime, contexto
   admin/                        regras da busca (tela do administrador)
   geocode/                      cliente da busca de endereço
   components/                   campos, botões, diálogo, ícones, estados vazio/erro/carregando
@@ -259,6 +272,8 @@ npx supabase functions deploy geocode
   um lugar só, desempenho medido e o ponto de extensão das vagas.
 - [Solicitar vaga e aceitar/recusar](docs/solicitar-vaga.md) — EP05: vaga
   derivada num lugar só, regras no banco, concorrência, decisões tomadas.
+- [Notificações em tempo real](docs/notificacoes.md) — EP06: avisos gerados
+  no banco, Realtime, badge do motorista, tempos medidos, o que falta para push.
 - [Identidade visual](docs/identidade-visual.md) — como o manual do UniRota
   vira código: tema único, Inter, cores, componentes, desvios pendentes de aval.
 - [Wireframes](docs/wireframes/) — esboços de referência de todos os épicos.

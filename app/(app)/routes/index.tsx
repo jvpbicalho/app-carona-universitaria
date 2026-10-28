@@ -125,7 +125,7 @@ function RouteCard({ route, pendingCount }: { route: Route; pendingCount: number
         {cancelled ? (
           <Text style={[styles.badge, styles.badgeStrong]}>Cancelada</Text>
         ) : full ? (
-          <Text style={[styles.badge, styles.badgeStrong]}>Lotada</Text>
+          <Text style={[styles.badge, styles.badgeStrong]}>Vagas esgotadas</Text>
         ) : (
           <Text style={styles.badge}>
             {route.seatsAvailable} de {route.seatsTotal} {route.seatsTotal === 1 ? 'vaga livre' : 'vagas livres'}
