@@ -1,0 +1,48 @@
+{
+  "inicio": "2026-10-28T21:03:23-03:00",
+  "falhas": [],
+  "cenas": [
+    {
+      "cena": 1,
+      "ok": true,
+      "segundos": 53.6
+    },
+    {
+      "cena": 2,
+      "ok": true,
+      "segundos": 25.9
+    },
+    {
+      "cena": 3,
+      "ok": true,
+      "segundos": 54.5
+    },
+    {
+      "cena": 4,
+      "ok": true,
+      "segundos": 24.7
+    },
+    {
+      "cena": 5,
+      "ok": true,
+      "segundos": 13.4
+    },
+    {
+      "cena": 6,
+      "ok": true,
+      "segundos": 15.8
+    },
+    {
+      "cena": 7,
+      "ok": true,
+      "segundos": 108.0
+    },
+    {
+      "cena": 8,
+      "ok": true,
+      "segundos": 39.5
+    }
+  ],
+  "arquivo": "docs/demo/unirota-demo.webm",
+  "bytes": 16456803
+}
