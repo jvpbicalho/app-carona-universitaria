@@ -1,7 +1,6 @@
 import React from 'react';
-import { router } from 'expo-router';
-
 import { AuthScreen } from '@/components/AuthScreen';
+import { goBack } from '@/components/ScreenHeader';
 import { ErrorState, FormSkeleton } from '@/components/StateViews';
 import { useProfile } from '@/profile/ProfileContext';
 import { ProfileForm } from '@/profile/ProfileForm';
@@ -41,7 +40,9 @@ export default function PersonalDataScreen() {
         mode="edit"
         onSaved={async () => {
           await reload();
-          router.back();
+          // goBack, e não router.back(): aberta direto na web (recarregar a
+          // página, link), não há histórico e a tela ficaria parada depois de salvar.
+          goBack('/profile');
         }}
       />
     </AuthScreen>

@@ -5,6 +5,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { AuthScreen } from '@/components/AuthScreen';
 import { Banner } from '@/components/Banner';
 import { PrimaryButton } from '@/components/PrimaryButton';
+import { goBack } from '@/components/ScreenHeader';
 import { Select } from '@/components/Select';
 import { ErrorState, FormSkeleton } from '@/components/StateViews';
 import { TextField } from '@/components/TextField';
@@ -60,7 +61,8 @@ export default function CancelRouteScreen() {
     try {
       await cancelRoute(route.id, cancellationReasonText(reason, otherText));
       // Volta ao detalhe, que recarrega no foco e mostra o estado "cancelada".
-      router.back();
+      // goBack: sem histórico (página recarregada na web), router.back() não faz nada.
+      goBack({ pathname: '/routes/[id]', params: { id: route.id } });
     } catch (err) {
       setFormError(
         describeRouteError(
@@ -106,7 +108,11 @@ export default function CancelRouteScreen() {
     return (
       <AuthScreen title="Cancelar carona" back backFallback="/routes">
         <Banner tone="warning" message={modifiable.message} />
-        <PrimaryButton label="Voltar ao detalhe" variant="outline" onPress={() => router.back()} />
+        <PrimaryButton
+          label="Voltar ao detalhe"
+          variant="outline"
+          onPress={() => goBack({ pathname: '/routes/[id]', params: { id: id ?? '' } })}
+        />
       </AuthScreen>
     );
   }
@@ -174,7 +180,9 @@ export default function CancelRouteScreen() {
           loading={saving}
         />
         <View style={styles.spacer} />
-        <PrimaryButton label="Manter carona" variant="outline" onPress={() => router.back()} disabled={saving} />
+        <PrimaryButton label="Manter carona" variant="outline" onPress={() => goBack({ pathname: '/routes/[id]', params: { id: route.id } })}
+          disabled={saving}
+        />
       </View>
     </AuthScreen>
   );

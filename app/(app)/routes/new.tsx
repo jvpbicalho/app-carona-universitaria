@@ -95,8 +95,14 @@ export default function NewRouteScreen() {
     setErrors([]);
     setSaving(true);
     try {
+      // O atalho grava as coordenadas do campus; as duas precisam bater.
       const usedCampus =
-        campus && destination && campus.latitude === destination.latitude ? campus.id : null;
+        campus &&
+        destination &&
+        campus.latitude === destination.latitude &&
+        campus.longitude === destination.longitude
+          ? campus.id
+          : null;
 
       await createRoute(profile.id, vehicle.id, draft, usedCampus);
       router.replace('/routes');

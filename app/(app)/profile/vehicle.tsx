@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { router } from 'expo-router';
 
 import { AuthScreen } from '@/components/AuthScreen';
 import { Banner } from '@/components/Banner';
 import { PrimaryButton } from '@/components/PrimaryButton';
+import { goBack } from '@/components/ScreenHeader';
 import { Select } from '@/components/Select';
 import { FormSkeleton } from '@/components/StateViews';
 import { Stepper } from '@/components/Stepper';
@@ -81,7 +81,8 @@ export default function VehicleScreen() {
     try {
       await saveVehicle(profile.id, draft);
       await reload();
-      router.back();
+      // Sem histórico (página recarregada na web), router.back() não faz nada.
+      goBack('/profile');
     } catch {
       setFormError('Não foi possível salvar o veículo. Verifique sua conexão e tente de novo.');
     } finally {

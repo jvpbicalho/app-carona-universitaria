@@ -115,7 +115,8 @@ def run_sql(file_name: str) -> bool:
     print(
         f"\nSem SUPABASE_DB_URL+psql nem SUPABASE_ACCESS_TOKEN: cole o conteúdo de\n"
         f"  {sql_path.relative_to(ROOT)}\n"
-        f"no SQL Editor do Supabase e rode. Depois: python scripts/demo/demo.py avatars\n"
+        f"no SQL Editor do Supabase e rode."
+        + (" Depois: python scripts/demo/demo.py avatars\n" if file_name == "seed.sql" else "\n")
     )
     return False
 

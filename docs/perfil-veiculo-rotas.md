@@ -139,6 +139,21 @@ O app nunca fala com o Nominatim direto, por três motivos:
 3. **Troca de provedor.** Migrar para Google ou Mapbox muda só a Edge
    Function; o contrato com o app continua igual.
 
+**Plano B: Photon (18/11/2026).** Desde 28/10/2026 o Nominatim responde 403
+a toda chamada que sai da infraestrutura da Supabase. Do IP de casa, com o
+mesmo User-Agent, ele responde 200: o bloqueio é por faixa de IP de nuvem.
+Sem cache, nenhum endereço novo funcionava, nem para publicar nem para buscar.
+A função agora tenta o Nominatim e, se ele falhar, o
+[Photon](https://photon.komoot.io), também OpenStreetMap, gratuito e sem
+chave, restrito à caixa do Brasil. O resultado tem o mesmo formato
+(rótulo "lugar · bairro · cidade") e vai para o mesmo cache. Conferido contra
+o Photon real: "avenida paulista 900" devolve a Faculdade Cásper Líbero nas
+mesmas coordenadas que o Nominatim dava.
+
+O contato exigido pelo Nominatim no User-Agent vem do segredo
+`GEOCODE_CONTACT` da função (dashboard → Edge Functions → Secrets). Sem ele,
+o User-Agent identifica só o app. Nenhum e-mail pessoal fica no código.
+
 > **Cuidado verificado em ambiente:** `verify_jwt = true` **não** é suficiente
 > para proteger uma Edge Function. O gateway aceita a publishable key sozinha
 > no header `apikey`, e essa chave é pública, embutida no bundle. Por isso a

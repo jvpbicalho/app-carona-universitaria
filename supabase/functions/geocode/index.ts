@@ -25,9 +25,10 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 // Exigido pela política do Nominatim: precisa identificar a aplicação e ter
-// como entrar em contato.
-const USER_AGENT =
-  "CaronaUniversitaria/0.1 (projeto academico PUC-SP; contato: jvpbicalho@gmail.com)";
+// como entrar em contato. O contato vem do segredo GEOCODE_CONTACT (dashboard →
+// Edge Functions → Secrets), para nenhum e-mail pessoal ficar no código nem no git.
+const CONTACT = Deno.env.get("GEOCODE_CONTACT")?.trim();
+const USER_AGENT = `UniRota/0.1 (projeto academico PUC-SP${CONTACT ? `; contato: ${CONTACT}` : ""})`;
 
 const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
 const CACHE_TTL_DAYS = 30;
@@ -111,6 +112,82 @@ function toResults(raw: unknown): GeocodeResult[] {
 }
 
 /**
+ * Plano B: Photon (komoot), também OpenStreetMap, gratuito e sem chave.
+ *
+ * Desde 28/10/2026 o Nominatim responde 403 às chamadas que saem da
+ * infraestrutura da Supabase (do IP de casa, com o mesmo User-Agent, responde
+ * 200): o bloqueio é por faixa de IP de nuvem, não por uso indevido nosso.
+ * Quando o Nominatim falha, a busca tenta o Photon antes de desistir.
+ */
+const PHOTON_URL = "https://photon.komoot.io/api/";
+// Caixa do Brasil (lon/lat): o Photon não tem `countrycodes`.
+const BRAZIL_BBOX = "-74.0,-33.8,-34.7,5.3";
+
+function photonLabel(p: Record<string, string | undefined>): string {
+  const street = p.street;
+  const streetWithNumber = street ? (p.housenumber ? `${street}, ${p.housenumber}` : street) : null;
+  // `name` de um lugar (faculdade, praça); numa rua, o nome é a própria rua.
+  const head = p.name && p.name !== street ? p.name : (streetWithNumber ?? p.name);
+  const district = p.locality ?? p.district;
+  const parts = [head, district, p.city].filter(Boolean);
+  return parts.join(" · ");
+}
+
+function photonToResults(raw: unknown): GeocodeResult[] {
+  const features = (raw as { features?: unknown[] } | null)?.features;
+  if (!Array.isArray(features)) return [];
+
+  return features
+    .map((entry) => {
+      const feature = entry as { properties?: Record<string, string | undefined>; geometry?: { coordinates?: unknown[] } };
+      const p = feature.properties ?? {};
+      if (p.countrycode && p.countrycode.toUpperCase() !== "BR") return null;
+      const [longitude, latitude] = (feature.geometry?.coordinates ?? []).map(Number);
+      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+      return {
+        label: photonLabel(p),
+        latitude,
+        longitude,
+        city: p.city ?? null,
+        state: p.state ?? null,
+      } satisfies GeocodeResult;
+    })
+    .filter((r): r is GeocodeResult => r !== null && r.label.length > 0);
+}
+
+async function searchNominatim(query: string): Promise<GeocodeResult[]> {
+  const url = new URL(NOMINATIM_URL);
+  url.searchParams.set("format", "jsonv2");
+  url.searchParams.set("q", query);
+  url.searchParams.set("addressdetails", "1");
+  url.searchParams.set("limit", String(MAX_RESULTS));
+  // Restringe ao Brasil: caronas intermunicipais para universitários daqui.
+  url.searchParams.set("countrycodes", "br");
+  url.searchParams.set("accept-language", "pt-BR");
+
+  const response = await fetch(url, {
+    headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!response.ok) throw new Error(`Nominatim respondeu ${response.status}`);
+  return toResults(await response.json());
+}
+
+async function searchPhoton(query: string): Promise<GeocodeResult[]> {
+  const url = new URL(PHOTON_URL);
+  url.searchParams.set("q", query);
+  url.searchParams.set("limit", String(MAX_RESULTS));
+  url.searchParams.set("bbox", BRAZIL_BBOX);
+
+  const response = await fetch(url, {
+    headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!response.ok) throw new Error(`Photon respondeu ${response.status}`);
+  return photonToResults(await response.json());
+}
+
+/**
  * Exige um JWT de usuário no Authorization. A publishable key passa pelo
  * gateway mas não é um JWT de usuário: getUser a rejeita, que é o ponto.
  */
@@ -175,25 +252,18 @@ Deno.serve(async (req: Request) => {
     }
   }
 
-  // 2) Consulta o Nominatim.
-  const url = new URL(NOMINATIM_URL);
-  url.searchParams.set("format", "jsonv2");
-  url.searchParams.set("q", query);
-  url.searchParams.set("addressdetails", "1");
-  url.searchParams.set("limit", String(MAX_RESULTS));
-  // Restringe ao Brasil: caronas intermunicipais para universitários daqui.
-  url.searchParams.set("countrycodes", "br");
-  url.searchParams.set("accept-language", "pt-BR");
-
+  // 2) Consulta o Nominatim; se ele recusar ou cair, o Photon.
   let results: GeocodeResult[];
+  let source = "nominatim";
   try {
-    const response = await fetch(url, {
-      headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
-      signal: AbortSignal.timeout(8000),
-    });
-
-    if (!response.ok) {
-      console.error("Nominatim respondeu", response.status);
+    results = await searchNominatim(query);
+  } catch (nominatimError) {
+    console.error("Nominatim falhou", String(nominatimError));
+    try {
+      results = await searchPhoton(query);
+      source = "photon";
+    } catch (photonError) {
+      console.error("Photon falhou", String(photonError));
       return json(
         {
           error: "geocoder_unavailable",
@@ -202,17 +272,6 @@ Deno.serve(async (req: Request) => {
         502,
       );
     }
-
-    results = toResults(await response.json());
-  } catch (error) {
-    console.error("Nominatim falhou", error);
-    return json(
-      {
-        error: "geocoder_unavailable",
-        message: "A busca de endereços está indisponível. Tente novamente em instantes.",
-      },
-      502,
-    );
   }
 
   // 3) Grava no cache. Resultado vazio também é cacheado: repetir uma busca
@@ -226,5 +285,5 @@ Deno.serve(async (req: Request) => {
 
   if (writeError) console.error("escrita no cache falhou", writeError);
 
-  return json({ results, source: "nominatim" }, 200);
+  return json({ results, source }, 200);
 });

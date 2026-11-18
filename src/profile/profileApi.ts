@@ -98,20 +98,36 @@ export async function updateActiveRole(
  *
  * O nome tem timestamp para furar cache de CDN: sem isso, trocar a foto
  * mantendo o mesmo caminho continuaria exibindo a antiga.
+ *
+ * O arquivo vai como ArrayBuffer, não como Blob: no React Native, um Blob
+ * lido de `file://` chega ao Storage com 0 bytes. É a forma do guia do
+ * Supabase para Expo, e funciona igual na web.
  */
 export async function uploadAvatar(userId: string, localUri: string): Promise<string> {
   const response = await fetch(localUri);
-  const blob = await response.blob();
+  // `file://` no celular pode vir sem tipo (ou genérico); o bucket só aceita imagem.
+  const header = response.headers.get('content-type') ?? '';
+  const contentType = header.startsWith('image/') ? header.split(';')[0] : guessImageType(localUri);
+  const body = await response.arrayBuffer();
+  if (body.byteLength === 0) throw new Error('A foto escolhida está vazia.');
 
-  const extension = blob.type === 'image/png' ? 'png' : blob.type === 'image/webp' ? 'webp' : 'jpg';
+  const extension = contentType === 'image/png' ? 'png' : contentType === 'image/webp' ? 'webp' : 'jpg';
   const path = `${userId}/avatar-${Date.now()}.${extension}`;
 
   const { error } = await supabase.storage
     .from(AVATAR_BUCKET)
-    .upload(path, blob, { contentType: blob.type || 'image/jpeg', upsert: true });
+    .upload(path, body, { contentType, upsert: true });
 
   if (error) throw error;
   return path;
+}
+
+/** Tipo pela extensão, quando o `fetch` de um arquivo local não informa. */
+function guessImageType(uri: string): string {
+  const lower = uri.toLowerCase().split('?')[0];
+  if (lower.endsWith('.png')) return 'image/png';
+  if (lower.endsWith('.webp')) return 'image/webp';
+  return 'image/jpeg';
 }
 
 /** URL pública da foto. O bucket é público, então não precisa assinar. */

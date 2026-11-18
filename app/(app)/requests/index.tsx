@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect } from 'expo-router';
@@ -7,6 +7,7 @@ import { screenLayout } from '@/components/AuthScreen';
 import { RouteLegs } from '@/components/RouteLegs';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { EmptyState, ErrorState, SkeletonList } from '@/components/StateViews';
+import { useNotifications } from '@/notifications/NotificationsContext';
 import { fetchMyRequests, type MyRequest } from '@/requests/requestApi';
 import { describeRequest } from '@/requests/requestStatus';
 import { formatDeparture } from '@/routes/routeValidation';
@@ -39,6 +40,11 @@ export default function MyRequestsScreen() {
       void load();
     }, [load]),
   );
+
+  // Aceite, recusa ou mudança na carona chegando ao vivo (EP06): o status
+  // muda aqui mesmo, sem precisar sair e voltar.
+  const { onLive } = useNotifications();
+  useEffect(() => onLive(() => void load()), [onLive, load]);
 
   return (
     <SafeAreaView style={screenLayout.safe} edges={['top', 'bottom']}>

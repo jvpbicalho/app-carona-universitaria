@@ -9,6 +9,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { DateTimeError } from '@/components/DateTimeError';
 import { DateTimeField } from '@/components/DateTimeField';
 import { PrimaryButton } from '@/components/PrimaryButton';
+import { goBack } from '@/components/ScreenHeader';
 import { ErrorState, FormSkeleton } from '@/components/StateViews';
 import type { FieldError } from '@/profile/profileValidation';
 import { describeRouteError, updateRoute } from '@/routes/routeApi';
@@ -77,7 +78,8 @@ export default function EditRouteScreen() {
     setSaving(true);
     try {
       await updateRoute(route.id, { origin, destination, departureAt });
-      router.back();
+      // Sem histórico (página recarregada na web), router.back() não faz nada.
+      goBack({ pathname: '/routes/[id]', params: { id: route.id } });
     } catch (err) {
       setFormError(
         describeRouteError(
@@ -147,7 +149,7 @@ export default function EditRouteScreen() {
     return (
       <AuthScreen title="Editar carona" back backFallback="/routes">
         <Banner tone="warning" message={modifiable.message} />
-        <PrimaryButton label="Voltar ao detalhe" variant="outline" onPress={() => router.back()} />
+        <PrimaryButton label="Voltar ao detalhe" variant="outline" onPress={() => goBack({ pathname: '/routes/[id]', params: { id: id ?? '' } })} />
       </AuthScreen>
     );
   }

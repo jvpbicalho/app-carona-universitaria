@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -11,6 +11,7 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { RouteLegs } from '@/components/RouteLegs';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { EmptyState, ErrorState, SkeletonBlock } from '@/components/StateViews';
+import { useNotifications } from '@/notifications/NotificationsContext';
 import { useProfile } from '@/profile/ProfileContext';
 import { avatarPublicUrl } from '@/profile/profileApi';
 import { decideRequest, type PendingRequest } from '@/requests/requestApi';
@@ -34,6 +35,17 @@ export default function RouteDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { profile } = useProfile();
   const { route, passengers, pending, loading, error, notFound, reload } = useRouteDetail(id);
+  const { onLive } = useNotifications();
+
+  // Pedido novo nesta carona chegando ao vivo (EP06): a lista de pendentes
+  // aparece sem o motorista precisar sair e voltar da tela.
+  useEffect(
+    () =>
+      onLive((notification) => {
+        if (notification.kind === 'solicitacao_recebida' && notification.routeId === id) void reload();
+      }),
+    [onLive, id, reload],
+  );
 
   const [deciding, setDeciding] = useState<string | null>(null);
   const [refusing, setRefusing] = useState<PendingRequest | null>(null);

@@ -1,7 +1,7 @@
 import 'react-native-url-polyfill/auto';
 import { createClient, type SupportedStorage } from '@supabase/supabase-js';
 import * as SecureStore from 'expo-secure-store';
-import { Platform } from 'react-native';
+import { AppState, Platform } from 'react-native';
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
@@ -73,6 +73,21 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
     detectSessionInUrl: false,
   },
 });
+
+/**
+ * No celular, os timers param com o app em segundo plano: o refresh
+ * automático do token só volta a rodar se for religado ao voltar ao primeiro
+ * plano. Sem isso, depois de uma hora fora o app volta com o token vencido, e
+ * a inscrição do Realtime (avisos) não recebe nada até a próxima chamada. É a
+ * recomendação do Supabase para React Native. Na web, o SDK já cuida disso
+ * pela visibilidade da aba.
+ */
+if (Platform.OS !== 'web') {
+  AppState.addEventListener('change', (state) => {
+    if (state === 'active') void supabase.auth.startAutoRefresh();
+    else void supabase.auth.stopAutoRefresh();
+  });
+}
 
 export const SUPABASE_URL = supabaseUrl;
 export const SUPABASE_KEY = supabaseKey;
