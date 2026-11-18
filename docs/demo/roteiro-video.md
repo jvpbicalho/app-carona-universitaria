@@ -1,7 +1,8 @@
 # Roteiro do vídeo de demonstração — UniRota
 
 Para gravar **manualmente, da tela do celular**, o mesmo percurso do vídeo
-automático (`docs/demo/unirota-demo.webm`, versão web, que serve de ensaio e de
+automático (`docs/demo/unirota-demo-completo.mp4` e o corte
+`docs/demo/unirota-demo-pitch.mp4`, versão web, que servem de ensaio e de
 plano B). Contas, caronas e comandos: [`scripts/demo/README.md`](../../scripts/demo/README.md).
 
 Duração prevista: **cerca de 6 min 30 s** já editado (de 9 a 10 min brutos,

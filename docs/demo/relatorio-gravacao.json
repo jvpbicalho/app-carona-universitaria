@@ -1,48 +1,153 @@
 {
-  "inicio": "2026-10-28T21:03:23-03:00",
+  "inicio": "2026-11-18T18:55:16-03:00",
   "falhas": [],
   "cenas": [
     {
       "cena": 1,
+      "titulo": "Cadastro e login",
       "ok": true,
       "segundos": 53.6
     },
     {
       "cena": 2,
+      "titulo": "Perfil e veículo",
       "ok": true,
-      "segundos": 25.9
+      "segundos": 27.0
     },
     {
       "cena": 3,
+      "titulo": "Publicar, editar, cancelar",
       "ok": true,
-      "segundos": 54.5
+      "segundos": 54.0
     },
     {
       "cena": 4,
+      "titulo": "Busca com tolerância",
       "ok": true,
-      "segundos": 24.7
+      "segundos": 24.4
     },
     {
       "cena": 5,
+      "titulo": "Pedido e badge ao vivo",
       "ok": true,
-      "segundos": 13.4
+      "segundos": 13.8
     },
     {
       "cena": 6,
+      "titulo": "Aceite e aviso",
       "ok": true,
-      "segundos": 15.8
+      "segundos": 26.6
     },
     {
       "cena": 7,
+      "titulo": "Vagas esgotadas e recusa",
       "ok": true,
-      "segundos": 108.0
+      "segundos": 110.1
     },
     {
       "cena": 8,
+      "titulo": "Regras do admin",
       "ok": true,
-      "segundos": 39.5
+      "segundos": 40.6
     }
   ],
-  "arquivo": "docs/demo/unirota-demo.webm",
-  "bytes": 16456803
+  "tempos_medidos_s": {
+    "pedido_ate_badge": 1.02,
+    "aceite_ate_aviso": 1.03,
+    "recusa_ate_aviso": 1.03
+  },
+  "trechos_do_corte": [
+    {
+      "trecho": "abertura",
+      "inicio": 5.9,
+      "fim": 10.91
+    },
+    {
+      "trecho": "cadastro",
+      "inicio": 10.91,
+      "fim": 29.95
+    },
+    {
+      "trecho": "publicar",
+      "inicio": 91.55,
+      "fim": 114.43
+    },
+    {
+      "trecho": "busca",
+      "inicio": 145.57,
+      "fim": 169.92
+    },
+    {
+      "trecho": "pedido",
+      "inicio": 169.92,
+      "fim": 183.68
+    },
+    {
+      "trecho": "aceite",
+      "inicio": 183.68,
+      "fim": 196.8
+    },
+    {
+      "trecho": "esgotadas",
+      "inicio": 210.27,
+      "fim": 213.89
+    },
+    {
+      "trecho": "esgotadas-1",
+      "inicio": 240.17,
+      "fim": 244.09
+    },
+    {
+      "trecho": "esgotadas-2",
+      "inicio": 261.22,
+      "fim": 282.08
+    },
+    {
+      "trecho": "recusa",
+      "inicio": 312.32,
+      "fim": 320.38
+    },
+    {
+      "trecho": "admin",
+      "inicio": 320.38,
+      "fim": 360.99
+    },
+    {
+      "trecho": "fechamento",
+      "inicio": 360.99,
+      "fim": 368.01
+    }
+  ],
+  "arquivos": {
+    "unirota-demo-completo.mp4": {
+      "bytes": 20857322,
+      "segundos": 373.7
+    },
+    "unirota-demo-pitch.mp4": {
+      "bytes": 11242546,
+      "segundos": 188.2
+    }
+  },
+  "cartoes_script_s": [
+    5.9,
+    64.51,
+    91.55,
+    145.57,
+    169.92,
+    183.68,
+    210.27,
+    320.38,
+    360.99
+  ],
+  "cartoes_video_s": [
+    5.9,
+    66.7,
+    93.8,
+    148.8,
+    173.4,
+    187.3,
+    214.0,
+    325.9,
+    366.8
+  ]
 }

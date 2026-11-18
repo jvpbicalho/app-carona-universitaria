@@ -39,8 +39,27 @@ python scripts/demo/demo.py seed             # cria/restaura (idempotente)
 python scripts/demo/demo.py cleanup          # apaga só os dados de teste
 python scripts/demo/demo.py datas            # data/hora de cada carona
 python scripts/demo/demo.py pedir admin A D  # Carla pede vaga em A e D "por outro aparelho"
-python scripts/demo/video/record.py          # grava docs/demo/unirota-demo.webm
+python scripts/demo/video/record.py          # grava os vídeos em docs/demo/ (ver abaixo)
 ```
+
+### Vídeo automático
+
+Antes: `demo.py reset` e o build web (`npx expo export --platform web`, sai em `dist/`).
+O `record.py` grava dois celulares lado a lado num palco 16:9 (1920×1080) e,
+com o ffmpeg completo (com libx264; no Windows, `winget install Gyan.FFmpeg`),
+entrega em `docs/demo/`:
+
+- `unirota-demo-completo.mp4`: as 8 cenas, cerca de 6 min;
+- `unirota-demo-pitch.mp4`: o corte com os momentos-chave, cerca de 3 min;
+- `relatorio-gravacao.json`: cenas, falhas, tempos medidos e os trechos do corte.
+
+Sem ffmpeg, sai só o webm bruto. O corte é montado a partir de marcas de tempo
+das cenas, alinhadas ao vídeo pelos cartões de título: o vídeo do Playwright
+escorrega alguns segundos em 6 minutos. Para remontar só o corte:
+`python scripts/demo/video/record.py --recortar`.
+
+Uma busca de endereço da cena 3 ("terminal rodoviario tiete") passa pela
+geocodificação real.
 
 O SQL (`seed.sql`, `cleanup.sql`) roda por um destes caminhos:
 

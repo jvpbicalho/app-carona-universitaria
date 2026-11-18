@@ -122,6 +122,7 @@ function toResults(raw: unknown): GeocodeResult[] {
 const PHOTON_URL = "https://photon.komoot.io/api/";
 // Caixa do Brasil (lon/lat): o Photon não tem `countrycodes`.
 const BRAZIL_BBOX = "-74.0,-33.8,-34.7,5.3";
+const SAO_PAULO = { lat: "-23.55", lon: "-46.63" };
 
 function photonLabel(p: Record<string, string | undefined>): string {
   const street = p.street;
@@ -178,6 +179,11 @@ async function searchPhoton(query: string): Promise<GeocodeResult[]> {
   url.searchParams.set("q", query);
   url.searchParams.set("limit", String(MAX_RESULTS));
   url.searchParams.set("bbox", BRAZIL_BBOX);
+  // Prioriza a região dos campi (centro de São Paulo). Sem isso, o Photon não
+  // tem a noção de "perto" do Nominatim: "estacao santana" caía no Rio Grande
+  // do Sul. Só ordena: resultados de outras cidades continuam aparecendo.
+  url.searchParams.set("lat", SAO_PAULO.lat);
+  url.searchParams.set("lon", SAO_PAULO.lon);
 
   const response = await fetch(url, {
     headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
